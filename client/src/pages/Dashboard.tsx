@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Book, Briefcase, Building, Gavel, Heart, Scale, Users } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
+import { toast } from "sonner";
 
 const CATEGORIES = [
   { id: "housing", name: "Housing Law", icon: <Building className="h-6 w-6" />, color: "bg-emerald-200", progress: 45 },
@@ -27,6 +28,15 @@ const CHALLENGES = [
 export default function Dashboard() {
   const { reduceMotion } = useAccessibility();
   const [selectedCategory, setSelectedCategory] = useState("housing");
+
+  const handleChallengeClick = (id: number) => {
+    if (id !== 1) {
+      toast.info("This challenge is coming soon!", {
+        description: "We are currently building more scenarios for you.",
+        duration: 3000,
+      });
+    }
+  };
 
   return (
     <Layout>
@@ -88,6 +98,7 @@ export default function Dashboard() {
               {CHALLENGES.map((challenge, index) => (
                 <div 
                   key={challenge.id}
+                  onClick={() => handleChallengeClick(challenge.id)}
                   className={cn(
                     "border-2 border-foreground p-4 relative group cursor-pointer transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_var(--color-foreground)]",
                     challenge.completed ? "bg-muted opacity-80" : "bg-background"
@@ -119,11 +130,17 @@ export default function Dashboard() {
                     <span className="font-bold text-accent-foreground bg-accent px-2 py-0.5 text-sm border border-foreground">
                       +{challenge.xp} XP
                     </span>
-                    <Link href={challenge.id === 1 ? "/quiz" : "#"}>
-                      <Button size="sm" className="rounded-none border-2 border-foreground" disabled={challenge.completed && challenge.id !== 1}>
-                        {challenge.completed ? "Replay" : "Start"}
+                    {challenge.id === 1 ? (
+                      <Link href="/quiz">
+                        <Button size="sm" className="rounded-none border-2 border-foreground">
+                          {challenge.completed ? "Replay" : "Start"}
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button size="sm" className="rounded-none border-2 border-foreground" disabled={false}>
+                        Start
                       </Button>
-                    </Link>
+                    )}
                   </div>
                 </div>
               ))}

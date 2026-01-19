@@ -79,7 +79,7 @@ export default function Home() {
               <span className="bg-yellow-400 text-black px-2 py-1 text-xs font-bold border border-black">+50 XP</span>
             </div>
           </div>
-          <Link href="/dashboard">
+          <Link href="/quiz">
             <Button className="rounded-none border-2 border-foreground bg-primary text-primary-foreground hover:bg-primary/90">
               Play Now
             </Button>
