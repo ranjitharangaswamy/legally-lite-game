@@ -1,11 +1,48 @@
 import Layout from "@/components/Layout";
 import { Progress } from "@/components/ui/progress";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Award, Calendar, Clock, Flame, Scale, Star, Trophy } from "lucide-react";
 
+const US_STATES_MAP: Record<string, string> = {
+  "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California",
+  "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware", "FL": "Florida", "GA": "Georgia",
+  "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "IA": "Iowa",
+  "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland",
+  "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi", "MO": "Missouri",
+  "MT": "Montana", "NE": "Nebraska", "NV": "Nevada", "NH": "New Hampshire", "NJ": "New Jersey",
+  "NM": "New Mexico", "NY": "New York", "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio",
+  "OK": "Oklahoma", "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina",
+  "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VT": "Vermont",
+  "VA": "Virginia", "WA": "Washington", "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming",
+};
+
 export default function Profile() {
   const { reduceMotion } = useAccessibility();
+  const { user } = useAuth();
+  const [selectedState, setSelectedState] = useState(user?.selectedState || "WA");
+  const utils = trpc.useUtils();
+
+  const updateStateMutation = trpc.user.updateState.useMutation({
+    onSuccess: () => {
+      toast.success("State updated successfully!");
+      utils.auth.me.invalidate();
+    },
+    onError: (error: any) => {
+      toast.error("Failed to update state: " + error.message);
+    },
+  });
+
+  const handleStateChange = (newState: string) => {
+    setSelectedState(newState);
+    updateStateMutation.mutate({ state: newState });
+  };
 
   return (
     <Layout>
@@ -50,6 +87,31 @@ export default function Profile() {
 
         {/* Stats & Badges */}
         <div className="lg:col-span-2 space-y-8">
+          {/* State Selection */}
+          <div className="bg-card border-4 border-foreground p-6 shadow-[6px_6px_0px_0px_var(--color-foreground)]">
+            <h2 className="text-2xl font-bold mb-6 uppercase border-b-4 border-foreground pb-2">Settings</h2>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-bold uppercase mb-2 block">Your State</Label>
+                <Select value={selectedState} onValueChange={handleStateChange} disabled={updateStateMutation.isPending}>
+                  <SelectTrigger className="w-full border-2 border-foreground rounded-none bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px] border-2 border-foreground rounded-none">
+                    {Object.entries(US_STATES_MAP).map(([code, name]) => (
+                      <SelectItem key={code} value={code}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Legal content is personalized based on your state's laws.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Statistics */}
           <div className="bg-card border-4 border-foreground p-6 shadow-[6px_6px_0px_0px_var(--color-foreground)]">
             <h2 className="text-2xl font-bold mb-6 uppercase border-b-4 border-foreground pb-2 flex items-center gap-2">

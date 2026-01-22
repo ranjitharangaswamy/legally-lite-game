@@ -11,16 +11,27 @@ import Profile from "./pages/Profile";
 import Leaderboard from "./pages/Leaderboard";
 import Quiz from "./pages/Quiz";
 import Presentation from "./pages/Presentation";
-
+import Onboarding from "./pages/Onboarding";
+import AuthWrapper from "./components/AuthWrapper";
 
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/onboarding"} component={Onboarding} />
       <Route path={"/presentation"} component={Presentation} />
-      <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/dashboard"}>
+        <AuthWrapper requireAuth requireOnboarding>
+          <Dashboard />
+        </AuthWrapper>
+      </Route>
       <Route path={"/quiz"} component={Quiz} />
-      <Route path={"/profile"} component={Profile} />
+      <Route path={"/profile"}>
+        <AuthWrapper requireAuth requireOnboarding>
+          <Profile />
+        </AuthWrapper>
+      </Route>
       <Route path={"/leaderboard"} component={Leaderboard} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

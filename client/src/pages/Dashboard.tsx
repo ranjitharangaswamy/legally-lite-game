@@ -7,6 +7,7 @@ import { Book, Briefcase, Building, Gavel, Heart, Scale, Users } from "lucide-re
 import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const CATEGORIES = [
   { id: "housing", name: "Housing Law", icon: <Building className="h-6 w-6" />, color: "bg-emerald-200", progress: 45 },
@@ -27,7 +28,17 @@ const CHALLENGES = [
 
 export default function Dashboard() {
   const { reduceMotion } = useAccessibility();
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("housing");
+
+  const stateNames: Record<string, string> = {
+    "WA": "Washington",
+    "CA": "California",
+    "NY": "New York",
+    "TX": "Texas",
+  };
+
+  const userStateName = user?.selectedState ? (stateNames[user.selectedState] || user.selectedState) : "Washington";
 
   const handleChallengeClick = (id: number) => {
     if (id !== 1) {
@@ -83,10 +94,15 @@ export default function Dashboard() {
           <div className="bg-card border-4 border-foreground p-6 shadow-[6px_6px_0px_0px_var(--color-foreground)] min-h-[600px]">
             <div className="flex justify-between items-center mb-8 border-b-4 border-foreground pb-4">
               <div>
-                <h1 className="text-3xl font-black uppercase">
-                  {CATEGORIES.find(c => c.id === selectedCategory)?.name}
-                </h1>
-                <p className="text-muted-foreground font-bold mt-1">Level 2 • 450/1000 XP</p>
+                <div>
+                  <h1 className="text-3xl font-black uppercase">
+                    {CATEGORIES.find(c => c.id === selectedCategory)?.name}
+                  </h1>
+                  <p className="text-muted-foreground font-bold mt-1">Level 2 • 450/1000 XP</p>
+                  <p className="text-sm font-bold mt-2 text-accent">
+                    📍 {userStateName} Law
+                  </p>
+                </div>
               </div>
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-bold uppercase mb-1">Category Progress</div>

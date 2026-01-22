@@ -1,3 +1,5 @@
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +10,7 @@ import { Link } from "wouter";
 
 export default function Home() {
   const { reduceMotion } = useAccessibility();
+  const { isAuthenticated, loading } = useAuth();
 
   return (
     <Layout>
@@ -34,16 +37,28 @@ export default function Home() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/dashboard">
-              <Button size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] transition-all">
-                Start Your Case <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/profile">
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground bg-background hover:bg-muted">
-                View Profile
-              </Button>
-            </Link>
+            {!loading && (
+              isAuthenticated ? (
+                <>
+                  <Link href="/dashboard">
+                    <Button size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] transition-all">
+                      Start Your Case <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <Link href="/profile">
+                    <Button variant="outline" size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground bg-background hover:bg-muted">
+                      View Profile
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <a href={getLoginUrl()}>
+                  <Button size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] transition-all">
+                    Sign Up / Login <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </a>
+              )
+            )}
           </div>
         </div>
       </section>
