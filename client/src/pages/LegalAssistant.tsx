@@ -25,6 +25,20 @@ export default function LegalAssistant() {
     scrollToBottom();
   }, [chatHistory]);
 
+  // Load context from sessionStorage if available
+  useEffect(() => {
+    const storedContext = sessionStorage.getItem('aiContext');
+    if (storedContext) {
+      try {
+        const { context, topic } = JSON.parse(storedContext);
+        setMessage(context);
+        sessionStorage.removeItem('aiContext'); // Clear after loading
+      } catch (error) {
+        console.error('Failed to load AI context:', error);
+      }
+    }
+  }, []);
+
   const handleSend = async () => {
     if (!message.trim() || isLoading) return;
 

@@ -1,4 +1,3 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,6 +6,8 @@ import { ArrowLeft, Heart, Shield, Zap, CheckCircle, XCircle } from "lucide-reac
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { AskAIButton } from "@/components/AskAIButton";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 // Inline game data to avoid JSON import issues
 const housingRightsData = {
@@ -217,6 +218,13 @@ export default function TenantShield() {
                     <h3 className="font-black text-xl mb-2 uppercase">Incoming Threat!</h3>
                     <p className="font-bold text-lg mb-1">{currentThreat.name}</p>
                     <p className="text-sm">{currentThreat.description}</p>
+                    <div className="mt-3">
+                      <AskAIButton 
+                        context={`I'm playing a housing law game. Can you explain the legal rights related to: ${currentThreat.name} - ${currentThreat.description}`}
+                        topic="housing"
+                        size="sm"
+                      />
+                    </div>
                   </div>
                   {feedback === "correct" && (
                     <CheckCircle className="h-8 w-8 text-green-600 flex-shrink-0" />

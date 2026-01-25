@@ -67,3 +67,6 @@
 - [x] Add web search capability to AI Legal Assistant backend
 - [x] Update chatbot to fetch and cite official state government sources
 - [x] Test AI assistant with real government website data
+- [x] Create Ask AI button component with context passing
+- [x] Add Ask AI buttons to Quiz page
+- [x] Add Ask AI buttons to game pages

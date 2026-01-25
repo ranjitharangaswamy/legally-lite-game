@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { AskAIButton } from "@/components/AskAIButton";
 
 interface Question {
   id: number;
@@ -896,7 +897,13 @@ export default function Quiz() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-4">
+          <div className="flex justify-between items-center gap-4">
+            <AskAIButton 
+              context={`I'm learning about ${category} law. Can you explain more about: ${QUESTIONS[currentQuestion].question}`}
+              topic={category}
+              variant="ghost"
+            />
+            <div className="flex gap-4">
             {!isAnswered ? (
               <Button 
                 onClick={handleSubmit}
@@ -915,6 +922,7 @@ export default function Quiz() {
                 {currentQuestion < QUESTIONS.length - 1 ? "Next Question" : "See Results"}
               </Button>
             )}
+            </div>
           </div>
         </div>
 
