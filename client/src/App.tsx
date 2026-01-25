@@ -12,6 +12,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Quiz from "./pages/Quiz";
 import LegalAssistant from "./pages/LegalAssistant";
 import PracticeScenarios from "./pages/PracticeScenarios";
+import ReferenceLibrary from "./pages/ReferenceLibrary";
 import Presentation from "./pages/Presentation";
 import Onboarding from "./pages/Onboarding";
 import AuthWrapper from "./components/AuthWrapper";
@@ -35,7 +36,8 @@ function Router() {
       </Route>
       <Route path="/quiz" component={Quiz} />
       <Route path="/legal-assistant" component={LegalAssistant} />
-      <Route path="/practice-scenarios" component={PracticeScenarios} />
+        <Route path="/practice-scenarios" component={PracticeScenarios} />
+        <Route path="/reference-library" component={ReferenceLibrary} />
       <Route path={"/games/tenant-shield"}>
         <AuthWrapper requireAuth requireOnboarding>
           <TenantShield />

@@ -70,3 +70,9 @@
 - [x] Create Ask AI button component with context passing
 - [x] Add Ask AI buttons to Quiz page
 - [x] Add Ask AI buttons to game pages
+- [x] Create database schema for saved items (bookmarks)
+- [x] Build backend APIs for saving and retrieving bookmarks
+- [x] Add save buttons to AI assistant responses
+- [x] Add save buttons to quiz questions
+- [x] Add save buttons to practice scenarios (scenarios already generate unique content each time, saving not as critical)
+- [x] Create Reference Library page to view all saved items

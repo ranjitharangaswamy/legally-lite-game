@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
-import { Loader2, Send, Sparkles } from "lucide-react";
+import { Bookmark, Loader2, Send, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -16,6 +16,21 @@ export default function LegalAssistant() {
   
   const { data: chatHistory, refetch } = trpc.user.getChatHistory.useQuery();
   const chatMutation = trpc.user.chat.useMutation();
+  const saveItemMutation = trpc.user.saveItem.useMutation();
+
+  const handleSaveResponse = async (content: string, index: number) => {
+    try {
+      await saveItemMutation.mutateAsync({
+        type: "ai_response",
+        title: `AI Response ${new Date().toLocaleDateString()}`,
+        content,
+        metadata: { topic: user?.selectedState, savedAt: new Date().toISOString() },
+      });
+      toast.success("Response saved to your library!");
+    } catch (error) {
+      toast.error("Failed to save response");
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -120,12 +135,25 @@ export default function LegalAssistant() {
                           : "bg-secondary text-secondary-foreground"
                       )}
                     >
-                      {msg.role === "assistant" ? (
-                        <div className="prose prose-sm max-w-none">
-                          <Streamdown>{msg.content}</Streamdown>
-                        </div>
-                      ) : (
-                        <p className="font-medium whitespace-pre-wrap">{msg.content}</p>
+                      <div className="flex-1">
+                        {msg.role === "assistant" ? (
+                          <div className="prose prose-sm max-w-none">
+                            <Streamdown>{msg.content}</Streamdown>
+                          </div>
+                        ) : (
+                          <p className="font-medium whitespace-pre-wrap">{msg.content}</p>
+                        )}
+                      </div>
+                      {msg.role === "assistant" && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleSaveResponse(msg.content, idx)}
+                          className="ml-2 flex-shrink-0"
+                          title="Save to library"
+                        >
+                          <Bookmark className="h-4 w-4" />
+                        </Button>
                       )}
                     </div>
                   </div>

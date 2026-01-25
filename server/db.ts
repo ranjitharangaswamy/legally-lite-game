@@ -1,6 +1,6 @@
 import { eq, and, sql, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, userStats, InsertUserStats, chatMessages, InsertChatMessage, topicPerformance, InsertTopicPerformance } from "../drizzle/schema";
+import { InsertUser, users, userStats, InsertUserStats, chatMessages, InsertChatMessage, topicPerformance, InsertTopicPerformance, savedItems, InsertSavedItem } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -306,4 +306,68 @@ export async function awardXp(userId: number, xpAmount: number, challengeType: s
       lastActivityDate: new Date(),
     })
     .where(eq(userStats.userId, userId));
+}
+
+// Saved items (bookmarks) functions
+export async function saveItem(data: {
+  userId: number;
+  type: "ai_response" | "quiz_question" | "scenario";
+  title: string;
+  content: string;
+  metadata?: any;
+}) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save item: database not available");
+    return;
+  }
+
+  const metadataStr = data.metadata ? JSON.stringify(data.metadata) : null;
+  
+  const [result] = await db.insert(savedItems).values({
+    userId: data.userId,
+    type: data.type,
+    title: data.title,
+    content: data.content,
+    metadata: metadataStr,
+  });
+  
+  return result;
+}
+
+export async function getSavedItems(userId: number, type?: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get saved items: database not available");
+    return [];
+  }
+
+  const conditions = [eq(savedItems.userId, userId)];
+  if (type) {
+    conditions.push(eq(savedItems.type, type as any));
+  }
+  
+  const items = await db
+    .select()
+    .from(savedItems)
+    .where(and(...conditions))
+    .orderBy(desc(savedItems.createdAt));
+  
+  // Parse metadata JSON strings
+  return items.map(item => ({
+    ...item,
+    metadata: item.metadata ? JSON.parse(item.metadata) : null,
+  }));
+}
+
+export async function deleteSavedItem(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete saved item: database not available");
+    return;
+  }
+
+  return await db
+    .delete(savedItems)
+    .where(and(eq(savedItems.id, id), eq(savedItems.userId, userId)));
 }

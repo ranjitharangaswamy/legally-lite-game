@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { updateUserState, getUserStats, initializeUserStats, awardXp, updateDisplayName, saveChatMessage, getChatHistory, updateTopicPerformance, getWeakTopics } from "./db";
+import { updateUserState, getUserStats, initializeUserStats, awardXp, updateDisplayName, saveChatMessage, getChatHistory, updateTopicPerformance, getWeakTopics, saveItem, getSavedItems, deleteSavedItem } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { getEnhancedLegalResponse } from "./_core/legalSearch";
 import { z } from "zod";
@@ -339,6 +339,41 @@ Return ONLY valid JSON in this exact format:
         const scenarioData = JSON.parse(content);
         
         return scenarioData;
+      }),
+
+    saveItem: protectedProcedure
+      .input(z.object({
+        type: z.enum(["ai_response", "quiz_question", "scenario"]),
+        title: z.string().min(1).max(255),
+        content: z.string().min(1),
+        metadata: z.any().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await saveItem({
+          userId: ctx.user.id,
+          type: input.type,
+          title: input.title,
+          content: input.content,
+          metadata: input.metadata,
+        });
+        return { success: true };
+      }),
+
+    getSavedItems: protectedProcedure
+      .input(z.object({
+        type: z.enum(["ai_response", "quiz_question", "scenario"]).optional(),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        return await getSavedItems(ctx.user.id, input?.type);
+      }),
+
+    deleteSavedItem: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await deleteSavedItem(input.id, ctx.user.id);
+        return { success: true };
       }),
   }),
 });

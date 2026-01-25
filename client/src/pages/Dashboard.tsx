@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Gamepad2, BookOpen, Filter, Sparkles } from "lucide-react";
+import { Bookmark, Gamepad2, BookOpen, Filter, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 // All available challenges/games - ORGANIZED BY DIFFICULTY (Easy -> Hard)
@@ -91,7 +91,7 @@ export default function Dashboard() {
     <Layout>
       <div className="max-w-6xl mx-auto">
         {/* Quick Actions */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link href="/quiz?category=housing">
             <Button className="w-full text-left justify-start border-2 border-foreground font-bold uppercase shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] h-16">
               <BookOpen className="mr-2 h-5 w-5" />
@@ -108,6 +108,12 @@ export default function Dashboard() {
             <Button variant="outline" className="w-full text-left justify-start border-2 border-foreground font-bold uppercase h-16">
               <Gamepad2 className="mr-2 h-5 w-5" />
               Practice Scenarios
+            </Button>
+          </Link>
+          <Link href="/reference-library">
+            <Button variant="outline" className="w-full text-left justify-start border-2 border-foreground font-bold uppercase h-16">
+              <Bookmark className="mr-2 h-5 w-5" />
+              My Library
             </Button>
           </Link>
         </div>

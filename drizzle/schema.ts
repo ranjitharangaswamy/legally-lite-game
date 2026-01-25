@@ -98,3 +98,19 @@ export const topicPerformance = mysqlTable("topic_performance", {
 
 export type TopicPerformance = typeof topicPerformance.$inferSelect;
 export type InsertTopicPerformance = typeof topicPerformance.$inferInsert;
+
+/**
+ * Saved items (bookmarks) for reference library
+ */
+export const savedItems = mysqlTable("saved_items", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("type", ["ai_response", "quiz_question", "scenario"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  metadata: text("metadata"), // JSON string with additional data like topic, state, etc.
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SavedItem = typeof savedItems.$inferSelect;
+export type InsertSavedItem = typeof savedItems.$inferInsert;

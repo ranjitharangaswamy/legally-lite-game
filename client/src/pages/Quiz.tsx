@@ -2,7 +2,8 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { CheckCircle, XCircle } from "lucide-react";
+import { Bookmark, CheckCircle, XCircle } from "lucide-react";
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -598,6 +599,26 @@ export default function Quiz() {
   const generateQuizMutation = trpc.user.generatePersonalizedQuiz.useMutation();
   const explainAnswerMutation = trpc.user.explainAnswer.useMutation();
   const recordAnswerMutation = trpc.user.recordQuizAnswer.useMutation();
+  const saveItemMutation = trpc.user.saveItem.useMutation();
+
+  const handleSaveQuestion = async () => {
+    const question = QUESTIONS[currentQuestion];
+    try {
+      await saveItemMutation.mutateAsync({
+        type: "quiz_question",
+        title: question.question.substring(0, 100),
+        content: `Q: ${question.question}\n\nA: ${question.explanation}`,
+        metadata: { 
+          category,
+          state: userState,
+          questionId: question.id,
+        },
+      });
+      toast.success("Question saved to your library!");
+    } catch (error) {
+      toast.error("Failed to save question");
+    }
+  };
   const { data: adaptiveDifficulty } = trpc.user.getAdaptiveDifficulty.useQuery({ topic: category });
   const utils = trpc.useUtils();
   const quizData = QUIZ_DATA[category] || QUIZ_DATA.housing;
@@ -882,9 +903,20 @@ export default function Quiz() {
                   <div className="font-black uppercase mb-2">
                     {selectedOption === QUESTIONS[currentQuestion].correct ? "Correct!" : "Incorrect"}
                   </div>
-                  <p className="text-sm font-bold">
-                    {QUESTIONS[currentQuestion].explanation}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-bold flex-1">
+                      {QUESTIONS[currentQuestion].explanation}
+                    </p>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleSaveQuestion}
+                      className="flex-shrink-0"
+                      title="Save to library"
+                    >
+                      <Bookmark className="h-4 w-4" />
+                    </Button>
+                  </div>
                   {aiExplanation && selectedOption !== QUESTIONS[currentQuestion].correct && (
                     <div className="mt-4 p-3 bg-background/50 border border-foreground/30 rounded">
                       <div className="text-xs font-black uppercase mb-1 text-primary">🤖 AI Tutor Explanation:</div>
