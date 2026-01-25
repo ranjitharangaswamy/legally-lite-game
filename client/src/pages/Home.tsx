@@ -41,19 +41,19 @@ export default function Home() {
               isAuthenticated ? (
                 <>
                   <Link href="/dashboard">
-                    <Button size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] transition-all">
+                    <Button size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground bg-primary text-primary-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] transition-all">
                       Start Your Case <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
                   <Link href="/profile">
-                    <Button variant="outline" size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground bg-background hover:bg-muted">
+                    <Button variant="outline" size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground bg-background text-foreground hover:bg-muted hover:text-foreground">
                       View Profile
                     </Button>
                   </Link>
                 </>
               ) : (
                 <a href={getLoginUrl()}>
-                  <Button size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] transition-all">
+                  <Button size="lg" className="text-lg px-8 py-6 rounded-none border-2 border-foreground bg-primary text-primary-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] transition-all">
                     Sign Up / Login <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </a>
