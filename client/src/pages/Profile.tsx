@@ -28,6 +28,17 @@ export default function Profile() {
   const { user } = useAuth();
   const [selectedState, setSelectedState] = useState(user?.selectedState || "WA");
   const utils = trpc.useUtils();
+  
+  const { data: userStats, isLoading: statsLoading } = trpc.user.getStats.useQuery();
+  
+  // Calculate level based on XP (every 500 XP = 1 level)
+  const totalXp = userStats?.totalXp || 0;
+  const level = Math.floor(totalXp / 500) + 1;
+  const xpForCurrentLevel = (level - 1) * 500;
+  const xpForNextLevel = level * 500;
+  const xpProgress = totalXp - xpForCurrentLevel;
+  const xpNeeded = xpForNextLevel - xpForCurrentLevel;
+  const progressPercentage = (xpProgress / xpNeeded) * 100;
 
   const updateStateMutation = trpc.user.updateState.useMutation({
     onSuccess: () => {
@@ -57,27 +68,27 @@ export default function Profile() {
                 className="w-full h-full object-cover filter grayscale contrast-125"
               />
             </div>
-            <h1 className="text-2xl font-black uppercase mb-1">Legal Eagle</h1>
-            <p className="text-muted-foreground font-bold mb-6">Level 5 Associate</p>
+            <h1 className="text-2xl font-black uppercase mb-1">{user?.name || "Legal Eagle"}</h1>
+            <p className="text-muted-foreground font-bold mb-6">Level {level} Associate</p>
             
             <div className="space-y-4 text-left">
               <div>
                 <div className="flex justify-between text-sm font-bold mb-1">
                   <span>XP Progress</span>
-                  <span>2450 / 3000</span>
+                  <span>{xpProgress} / {xpNeeded}</span>
                 </div>
-                <Progress value={82} className="h-6 border-2 border-foreground rounded-none bg-muted [&>div]:bg-primary" />
+                <Progress value={progressPercentage} className="h-6 border-2 border-foreground rounded-none bg-muted [&>div]:bg-primary" />
               </div>
               
               <div className="grid grid-cols-2 gap-4 pt-4 border-t-2 border-foreground">
                 <div className="text-center p-2 bg-muted border-2 border-foreground">
                   <Flame className="w-6 h-6 mx-auto mb-1 text-orange-600" />
-                  <div className="text-2xl font-black">12</div>
+                  <div className="text-2xl font-black">{userStats?.currentStreak || 0}</div>
                   <div className="text-xs uppercase font-bold">Day Streak</div>
                 </div>
                 <div className="text-center p-2 bg-muted border-2 border-foreground">
                   <Trophy className="w-6 h-6 mx-auto mb-1 text-yellow-600" />
-                  <div className="text-2xl font-black">8</div>
+                  <div className="text-2xl font-black">{userStats?.badges ? JSON.parse(userStats.badges).length : 0}</div>
                   <div className="text-xs uppercase font-bold">Badges</div>
                 </div>
               </div>
@@ -119,18 +130,21 @@ export default function Profile() {
             </h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard label="Total Playtime" value="4h 12m" />
-              <StatCard label="Cases Solved" value="24" />
-              <StatCard label="Accuracy" value="87%" />
+              <StatCard label="Total XP" value={totalXp.toString()} />
+              <StatCard label="Cases Solved" value={(userStats?.challengesCompleted || 0).toString()} />
+              <StatCard label="Current Level" value={level.toString()} />
             </div>
             
             <div className="mt-8">
               <h3 className="font-bold uppercase mb-4">Category Mastery</h3>
               <div className="space-y-3">
-                <SkillBar label="Housing Law" value={75} />
-                <SkillBar label="Employment Law" value={40} />
-                <SkillBar label="Consumer Rights" value={90} />
+                <SkillBar label="Housing Law" value={0} />
+                <SkillBar label="Employment Law" value={0} />
+                <SkillBar label="Consumer Rights" value={0} />
               </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                Complete challenges to build mastery in each category.
+              </p>
             </div>
           </div>
 

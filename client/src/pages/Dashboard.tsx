@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 
 const CATEGORIES = [
   { id: "housing", name: "Housing Law", icon: <Building className="h-6 w-6" />, color: "bg-emerald-200", progress: 45 },
@@ -20,16 +21,24 @@ const CATEGORIES = [
 ];
 
 const CHALLENGES = [
-  { id: 1, title: "Tenant Rights Quiz", type: "Quiz", difficulty: "Easy", xp: 100, completed: true },
-  { id: 2, title: "Eviction Notice Sim", type: "Simulation", difficulty: "Medium", xp: 250, completed: false },
-  { id: 3, title: "Court Clerk Roleplay", type: "Roleplay", difficulty: "Hard", xp: 500, completed: false },
-  { id: 4, title: "Legal Term Sorting", type: "Mini-Game", difficulty: "Easy", xp: 150, completed: false },
+  { id: 1, title: "Tenant Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
 ];
 
 export default function Dashboard() {
   const { reduceMotion } = useAccessibility();
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("housing");
+  
+  const { data: userStats } = trpc.user.getStats.useQuery();
+  
+  // Calculate level based on XP (every 500 XP = 1 level)
+  const totalXp = userStats?.totalXp || 0;
+  const level = Math.floor(totalXp / 500) + 1;
+  const xpForCurrentLevel = (level - 1) * 500;
+  const xpForNextLevel = level * 500;
+  const xpProgress = totalXp - xpForCurrentLevel;
+  const xpNeeded = xpForNextLevel - xpForCurrentLevel;
+  const progressPercentage = Math.round((xpProgress / xpNeeded) * 100);
 
   const stateNames: Record<string, string> = {
     "WA": "Washington",
@@ -41,12 +50,7 @@ export default function Dashboard() {
   const userStateName = user?.selectedState ? (stateNames[user.selectedState] || user.selectedState) : "Washington";
 
   const handleChallengeClick = (id: number) => {
-    if (id !== 1) {
-      toast.info("This challenge is coming soon!", {
-        description: "We are currently building more scenarios for you.",
-        duration: 3000,
-      });
-    }
+    // All challenges are now functional
   };
 
   return (
@@ -98,15 +102,16 @@ export default function Dashboard() {
                   <h1 className="text-3xl font-black uppercase">
                     {CATEGORIES.find(c => c.id === selectedCategory)?.name}
                   </h1>
-                  <p className="text-muted-foreground font-bold mt-1">Level 2 • 450/1000 XP</p>
+                  <p className="text-muted-foreground font-bold mt-1">Level {level} • {xpProgress}/{xpNeeded} XP</p>
                   <p className="text-sm font-bold mt-2 text-accent">
                     📍 {userStateName} Law
                   </p>
                 </div>
               </div>
               <div className="text-right hidden sm:block">
-                <div className="text-sm font-bold uppercase mb-1">Category Progress</div>
-                <Progress value={45} className="w-32 h-4 border-2 border-foreground rounded-none bg-muted [&>div]:bg-primary" />
+                <div className="text-sm font-bold uppercase mb-1">Level Progress</div>
+                <Progress value={progressPercentage} className="w-32 h-4 border-2 border-foreground rounded-none bg-muted [&>div]:bg-primary" />
+                <div className="text-xs font-bold mt-1">{progressPercentage}% to Level {level + 1}</div>
               </div>
             </div>
 
