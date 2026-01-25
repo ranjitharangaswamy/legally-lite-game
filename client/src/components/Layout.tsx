@@ -1,7 +1,7 @@
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
-import { Eye, EyeOff, Moon, Sun, Type, Zap, ZapOff } from "lucide-react";
+import { Eye, EyeOff, Minus, Moon, Plus, Sun, Type, Zap, ZapOff } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "./ui/button";
 import {
@@ -22,10 +22,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     largeText,
     reduceMotion,
     screenReaderOptimized,
+    zoomLevel,
     toggleHighContrast,
     toggleLargeText,
     toggleReduceMotion,
     toggleScreenReaderOptimized,
+    zoomIn,
+    zoomOut,
+    resetZoom,
   } = useAccessibility();
 
   return (
@@ -151,6 +155,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {screenReaderOptimized && <span className="text-xs font-bold">[ON]</span>}
                   </div>
                 </DropdownMenuItem>
+                
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuLabel>Text Zoom</DropdownMenuLabel>
+                
+                <div className="px-2 py-2 flex items-center justify-between gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={zoomOut}
+                    disabled={zoomLevel <= 80}
+                    className="rounded-none border-2 border-foreground h-8 w-8 p-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Decrease text size"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  
+                  <div className="flex-1 text-center">
+                    <span className="text-sm font-bold" aria-live="polite">{zoomLevel}%</span>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={zoomIn}
+                    disabled={zoomLevel >= 150}
+                    className="rounded-none border-2 border-foreground h-8 w-8 p-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Increase text size"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                {zoomLevel !== 100 && (
+                  <DropdownMenuItem onClick={resetZoom} className="cursor-pointer text-xs">
+                    <span className="w-full text-center">Reset to 100%</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

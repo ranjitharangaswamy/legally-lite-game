@@ -222,3 +222,16 @@
     }
   }
 }
+/* Text Zoom Accessibility Feature */
+:root {
+  --zoom-scale: 1;
+}
+
+body {
+  font-size: calc(1rem * var(--zoom-scale));
+}
+
+/* Ensure zoom doesn't break fixed-size elements */
+button, input, select, textarea {
+  font-size: calc(1em * var(--zoom-scale));
+}

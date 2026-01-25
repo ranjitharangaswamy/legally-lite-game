@@ -5,6 +5,7 @@ interface AccessibilityState {
   largeText: boolean;
   reduceMotion: boolean;
   screenReaderOptimized: boolean;
+  zoomLevel: number; // 100 = normal, range 80-150
 }
 
 interface AccessibilityContextType extends AccessibilityState {
@@ -12,6 +13,9 @@ interface AccessibilityContextType extends AccessibilityState {
   toggleLargeText: () => void;
   toggleReduceMotion: () => void;
   toggleScreenReaderOptimized: () => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetZoom: () => void;
   resetAccessibility: () => void;
 }
 
@@ -27,6 +31,7 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
           largeText: false,
           reduceMotion: false,
           screenReaderOptimized: false,
+          zoomLevel: 100,
         };
   });
 
@@ -38,6 +43,9 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     document.body.classList.toggle("large-text", state.largeText);
     document.body.classList.toggle("reduce-motion", state.reduceMotion);
     document.body.classList.toggle("screen-reader-optimized", state.screenReaderOptimized);
+    
+    // Apply zoom level as CSS custom property
+    document.documentElement.style.setProperty('--zoom-scale', `${state.zoomLevel / 100}`);
   }, [state]);
 
   const toggleHighContrast = () => setState(s => ({ ...s, highContrast: !s.highContrast }));
@@ -45,11 +53,16 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   const toggleReduceMotion = () => setState(s => ({ ...s, reduceMotion: !s.reduceMotion }));
   const toggleScreenReaderOptimized = () => setState(s => ({ ...s, screenReaderOptimized: !s.screenReaderOptimized }));
   
+  const zoomIn = () => setState(s => ({ ...s, zoomLevel: Math.min(s.zoomLevel + 10, 150) }));
+  const zoomOut = () => setState(s => ({ ...s, zoomLevel: Math.max(s.zoomLevel - 10, 80) }));
+  const resetZoom = () => setState(s => ({ ...s, zoomLevel: 100 }));
+  
   const resetAccessibility = () => setState({
     highContrast: false,
     largeText: false,
     reduceMotion: false,
     screenReaderOptimized: false,
+    zoomLevel: 100,
   });
 
   return (
@@ -60,6 +73,9 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
         toggleLargeText,
         toggleReduceMotion,
         toggleScreenReaderOptimized,
+        zoomIn,
+        zoomOut,
+        resetZoom,
         resetAccessibility,
       }}
     >

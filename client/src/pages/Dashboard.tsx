@@ -20,9 +20,29 @@ const CATEGORIES = [
   { id: "fundamentals", name: "Fundamentals", icon: <Gavel className="h-6 w-6" />, color: "bg-orange-200", progress: 80 },
 ];
 
-const CHALLENGES = [
-  { id: 1, title: "Tenant Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
-];
+const CHALLENGES_BY_CATEGORY: Record<string, Array<{id: number, title: string, type: string, difficulty: string, xp: number, completed: boolean}>> = {
+  housing: [
+    { id: 1, title: "Tenant Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
+  ],
+  employment: [
+    { id: 2, title: "Workplace Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
+  ],
+  civil: [
+    { id: 3, title: "Court Procedures Quiz", type: "Quiz", difficulty: "Hard", xp: 300, completed: false },
+  ],
+  consumer: [
+    { id: 4, title: "Consumer Protection Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false },
+  ],
+  family: [
+    { id: 5, title: "Family Law Basics Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
+  ],
+  general: [
+    { id: 6, title: "Legal Terminology Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false },
+  ],
+  fundamentals: [
+    { id: 7, title: "Legal System Foundations Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false },
+  ],
+};
 
 export default function Dashboard() {
   const { reduceMotion } = useAccessibility();
@@ -49,8 +69,15 @@ export default function Dashboard() {
 
   const userStateName = user?.selectedState ? (stateNames[user.selectedState] || user.selectedState) : "Washington";
 
+  const currentChallenges = CHALLENGES_BY_CATEGORY[selectedCategory] || [];
+
   const handleChallengeClick = (id: number) => {
-    // All challenges are now functional
+    // Only the first challenge (Tenant Rights Quiz) is functional
+    if (id !== 1) {
+      toast.info("This quiz is coming soon!", {
+        description: `We're building ${currentChallenges.find(c => c.id === id)?.title} for you.`,
+      });
+    }
   };
 
   return (
@@ -116,7 +143,7 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {CHALLENGES.map((challenge, index) => (
+              {currentChallenges.map((challenge, index) => (
                 <div 
                   key={challenge.id}
                   onClick={() => handleChallengeClick(challenge.id)}
