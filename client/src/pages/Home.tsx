@@ -20,7 +20,7 @@ export default function Home() {
         </div>
         
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter uppercase leading-none">
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tighter uppercase leading-none">
             Legally <span className="text-primary underline decoration-4 underline-offset-8">Lite</span>
           </h1>
           
@@ -79,7 +79,7 @@ export default function Home() {
         <FeatureCard 
           icon={<Scale className="h-10 w-10" />}
           title="Learn Your Rights"
-          description="Interactive quizzes and simulations to help you understand Washington housing, employment, and consumer laws."
+          description="Interactive quizzes and simulations to help you understand your state laws in the United States covering housing, employment, and consumer rights."
           delay={0}
         />
         <FeatureCard 

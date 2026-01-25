@@ -43,3 +43,5 @@
 - [x] Create Tenant Law Sorter drag-and-drop categorization game
 - [x] Add Tenant Law Sorter to dashboard and routes
 - [x] Fix Clause Cutter - clauses not rendering in game area
+- [x] Increase LEGALLY LITE heading size on homepage
+- [x] Update homepage text to replace "Washington" with "your state laws in the United States"
