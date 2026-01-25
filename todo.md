@@ -1,2 +1,3 @@
 - [x] Add zoom in/out controls with +/- buttons to accessibility menu
 - [x] Create unique challenges for each legal category (Housing, Employment, Civil Procedure, Consumer Rights, Family Law, General Law, Fundamentals)
+- [x] Add legal disclaimer to front page stating game is for educational purposes only

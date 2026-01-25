@@ -63,6 +63,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Legal Disclaimer */}
+      <section className="mb-12 border-2 border-foreground bg-muted/50 p-6">
+        <div className="container mx-auto">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 mt-1">
+              <div className="w-8 h-8 bg-accent text-accent-foreground flex items-center justify-center border-2 border-foreground font-bold text-lg">
+                ⚠
+              </div>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-2 uppercase">Legal Disclaimer</h3>
+              <p className="text-sm leading-relaxed">
+                <strong>This game is for educational purposes only.</strong> The information provided through Legally Lite should not be considered legal advice. While we strive to present accurate legal concepts, laws vary by jurisdiction and change over time. For specific legal guidance regarding your situation, please consult a qualified attorney licensed in your state.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
         <FeatureCard 
           icon={<Scale className="h-10 w-10" />}
