@@ -1,0 +1,122 @@
+{
+  "illegalClauses": [
+    {
+      "id": "no-refund",
+      "text": "Non-refundable under any circumstances",
+      "explanation": "FTC rules require reasonable return policies for defective products",
+      "points": 10
+    },
+    {
+      "id": "change-terms",
+      "text": "We can change terms without notice",
+      "explanation": "Consumers must be notified of material changes to terms",
+      "points": 10
+    },
+    {
+      "id": "waive-sue",
+      "text": "You waive your right to sue",
+      "explanation": "Mandatory arbitration clauses must be clearly disclosed and fair",
+      "points": 15
+    },
+    {
+      "id": "hidden-fee",
+      "text": "Hidden $50 monthly maintenance fee",
+      "explanation": "All fees must be clearly disclosed upfront under consumer protection laws",
+      "points": 15
+    },
+    {
+      "id": "auto-renew",
+      "text": "Automatic renewal with no cancellation option",
+      "explanation": "Consumers must be able to cancel subscriptions easily",
+      "points": 10
+    },
+    {
+      "id": "liability-waiver",
+      "text": "Company has zero liability for any damages",
+      "explanation": "Blanket liability waivers are often unenforceable",
+      "points": 15
+    },
+    {
+      "id": "personal-data",
+      "text": "We can sell your personal data to anyone",
+      "explanation": "Privacy laws require consent and disclosure for data sharing",
+      "points": 10
+    },
+    {
+      "id": "price-change",
+      "text": "Price can increase 500% at any time",
+      "explanation": "Unreasonable price escalation clauses are unconscionable",
+      "points": 15
+    }
+  ],
+  "legalClauses": [
+    {
+      "id": "return-policy",
+      "text": "30-day return policy for unused items",
+      "explanation": "This is a reasonable return policy",
+      "penalty": -10
+    },
+    {
+      "id": "shipping-fee",
+      "text": "Standard shipping fees apply",
+      "explanation": "Disclosed shipping fees are legal",
+      "penalty": -10
+    },
+    {
+      "id": "age-requirement",
+      "text": "Service requires users to be 18+",
+      "explanation": "Age requirements are legal and common",
+      "penalty": -10
+    },
+    {
+      "id": "payment-terms",
+      "text": "Payment due within 30 days of invoice",
+      "explanation": "Standard payment terms are legal",
+      "penalty": -10
+    },
+    {
+      "id": "warranty",
+      "text": "1-year manufacturer warranty included",
+      "explanation": "Warranties are consumer protections",
+      "penalty": -10
+    },
+    {
+      "id": "privacy-notice",
+      "text": "We collect data to improve service, see privacy policy",
+      "explanation": "Transparent data collection with policy link is legal",
+      "penalty": -10
+    },
+    {
+      "id": "termination",
+      "text": "Either party may terminate with 30 days notice",
+      "explanation": "Reasonable termination clauses are legal",
+      "penalty": -10
+    },
+    {
+      "id": "dispute-resolution",
+      "text": "Disputes resolved through mediation first",
+      "explanation": "Mediation before litigation is a fair dispute resolution method",
+      "penalty": -10
+    }
+  ],
+  "scamBombs": [
+    {
+      "id": "nigerian-prince",
+      "text": "🚨 URGENT: Send $1000 to claim your inheritance! 🚨",
+      "explanation": "Classic advance-fee scam",
+      "bonus": 25
+    },
+    {
+      "id": "phishing",
+      "text": "🚨 Your account will be closed! Click here NOW! 🚨",
+      "explanation": "Phishing attempt using urgency and fear",
+      "bonus": 25
+    },
+    {
+      "id": "fake-prize",
+      "text": "🚨 YOU WON $1,000,000! Pay $99 processing fee! 🚨",
+      "explanation": "Fake prize scam requiring upfront payment",
+      "bonus": 25
+    }
+  ]
+}

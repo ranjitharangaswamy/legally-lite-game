@@ -2,3 +2,7 @@
 - [x] Create unique challenges for each legal category (Housing, Employment, Civil Procedure, Consumer Rights, Family Law, General Law, Fundamentals)
 - [x] Add legal disclaimer to front page stating game is for educational purposes only
 - [x] Fix button visibility on home page (ensure proper text contrast)
+- [x] Implement "Tenant Shield" tower defense game for Housing Law
+- [x] Implement "Clause Cutter" slash game for Consumer Rights
+- [x] Update Dashboard to reflect new game types
+- [x] Create state-specific legal content JSON files

@@ -1,0 +1,190 @@
+{
+  "states": {
+    "California": {
+      "rights": [
+        {
+          "id": "rent-control",
+          "name": "Rent Control Protection",
+          "description": "Limits annual rent increases to 5% + inflation under AB 1482",
+          "blocks": ["excessive-rent-hike"],
+          "icon": "💰"
+        },
+        {
+          "id": "24hr-notice",
+          "name": "24-Hour Entry Notice",
+          "description": "Landlords must give 24 hours written notice before entering",
+          "blocks": ["surprise-inspection", "privacy-violation"],
+          "icon": "🕐"
+        },
+        {
+          "id": "habitability",
+          "name": "Habitability Guarantee",
+          "description": "Landlord must maintain safe, livable conditions",
+          "blocks": ["no-repairs", "unsafe-conditions"],
+          "icon": "🏠"
+        },
+        {
+          "id": "security-deposit",
+          "name": "Security Deposit Limits",
+          "description": "Deposits limited to 2 months rent for unfurnished units",
+          "blocks": ["excessive-deposit"],
+          "icon": "🔒"
+        }
+      ],
+      "threats": [
+        {
+          "id": "excessive-rent-hike",
+          "name": "15% Rent Increase",
+          "description": "Landlord demands 15% rent increase",
+          "blockedBy": ["rent-control"],
+          "damage": 1
+        },
+        {
+          "id": "surprise-inspection",
+          "name": "Unannounced Entry",
+          "description": "Landlord enters without notice",
+          "blockedBy": ["24hr-notice"],
+          "damage": 1
+        },
+        {
+          "id": "no-repairs",
+          "name": "Ignored Repair Request",
+          "description": "Broken heater not fixed for weeks",
+          "blockedBy": ["habitability"],
+          "damage": 1
+        },
+        {
+          "id": "excessive-deposit",
+          "name": "4-Month Deposit Demand",
+          "description": "Landlord requires excessive security deposit",
+          "blockedBy": ["security-deposit"],
+          "damage": 1
+        }
+      ]
+    },
+    "New York": {
+      "rights": [
+        {
+          "id": "rent-stabilization",
+          "name": "Rent Stabilization",
+          "description": "Protects tenants from excessive rent increases in covered buildings",
+          "blocks": ["excessive-rent-hike"],
+          "icon": "💰"
+        },
+        {
+          "id": "reasonable-notice",
+          "name": "Reasonable Entry Notice",
+          "description": "Landlords must provide reasonable notice before entering",
+          "blocks": ["surprise-inspection", "privacy-violation"],
+          "icon": "🕐"
+        },
+        {
+          "id": "warranty-habitability",
+          "name": "Warranty of Habitability",
+          "description": "Landlord must maintain premises in livable condition",
+          "blocks": ["no-repairs", "unsafe-conditions"],
+          "icon": "🏠"
+        },
+        {
+          "id": "deposit-protection",
+          "name": "Security Deposit Protection",
+          "description": "Deposits must be held in interest-bearing account",
+          "blocks": ["excessive-deposit"],
+          "icon": "🔒"
+        }
+      ],
+      "threats": [
+        {
+          "id": "excessive-rent-hike",
+          "name": "20% Rent Increase",
+          "description": "Landlord demands 20% rent increase",
+          "blockedBy": ["rent-stabilization"],
+          "damage": 1
+        },
+        {
+          "id": "surprise-inspection",
+          "name": "Unannounced Entry",
+          "description": "Landlord enters without notice",
+          "blockedBy": ["reasonable-notice"],
+          "damage": 1
+        },
+        {
+          "id": "no-repairs",
+          "name": "Ignored Repair Request",
+          "description": "Leaking pipes not fixed",
+          "blockedBy": ["warranty-habitability"],
+          "damage": 1
+        },
+        {
+          "id": "excessive-deposit",
+          "name": "Unreturned Deposit",
+          "description": "Landlord keeps deposit without explanation",
+          "blockedBy": ["deposit-protection"],
+          "damage": 1
+        }
+      ]
+    },
+    "Texas": {
+      "rights": [
+        {
+          "id": "notice-to-enter",
+          "name": "Notice to Enter",
+          "description": "Landlords should provide reasonable notice (not legally required but customary)",
+          "blocks": ["surprise-inspection"],
+          "icon": "🕐"
+        },
+        {
+          "id": "repair-deduct",
+          "name": "Repair and Deduct",
+          "description": "Tenant can repair and deduct from rent if landlord fails to fix",
+          "blocks": ["no-repairs"],
+          "icon": "🏠"
+        },
+        {
+          "id": "security-return",
+          "name": "Security Deposit Return",
+          "description": "Landlord must return deposit within 30 days with itemized deductions",
+          "blocks": ["excessive-deposit"],
+          "icon": "🔒"
+        },
+        {
+          "id": "retaliation-protection",
+          "name": "Retaliation Protection",
+          "description": "Landlord cannot retaliate for exercising tenant rights",
+          "blocks": ["retaliatory-eviction"],
+          "icon": "⚖️"
+        }
+      ],
+      "threats": [
+        {
+          "id": "surprise-inspection",
+          "name": "Unannounced Entry",
+          "description": "Landlord enters without notice",
+          "blockedBy": ["notice-to-enter"],
+          "damage": 1
+        },
+        {
+          "id": "no-repairs",
+          "name": "Ignored Repair Request",
+          "description": "AC broken in summer heat",
+          "blockedBy": ["repair-deduct"],
+          "damage": 1
+        },
+        {
+          "id": "excessive-deposit",
+          "name": "Withheld Deposit",
+          "description": "Landlord keeps deposit without itemization",
+          "blockedBy": ["security-return"],
+          "damage": 1
+        },
+        {
+          "id": "retaliatory-eviction",
+          "name": "Retaliation Eviction",
+          "description": "Eviction after complaint to health department",
+          "blockedBy": ["retaliation-protection"],
+          "damage": 1
+        }
+      ]
+    }
+  }
+}

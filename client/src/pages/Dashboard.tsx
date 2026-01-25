@@ -20,9 +20,10 @@ const CATEGORIES = [
   { id: "fundamentals", name: "Fundamentals", icon: <Gavel className="h-6 w-6" />, color: "bg-orange-200", progress: 80 },
 ];
 
-const CHALLENGES_BY_CATEGORY: Record<string, Array<{id: number, title: string, type: string, difficulty: string, xp: number, completed: boolean}>> = {
+const CHALLENGES_BY_CATEGORY: Record<string, Array<{id: number, title: string, type: string, difficulty: string, xp: number, completed: boolean, path?: string}>> = {
   housing: [
-    { id: 1, title: "Tenant Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
+    { id: 1, title: "Tenant Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false, path: "/quiz" },
+    { id: 8, title: "Tenant Shield", type: "Mini-Game", difficulty: "Medium", xp: 300, completed: false, path: "/games/tenant-shield" },
   ],
   employment: [
     { id: 2, title: "Workplace Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
@@ -32,6 +33,7 @@ const CHALLENGES_BY_CATEGORY: Record<string, Array<{id: number, title: string, t
   ],
   consumer: [
     { id: 4, title: "Consumer Protection Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false },
+    { id: 9, title: "Clause Cutter", type: "Mini-Game", difficulty: "Medium", xp: 300, completed: false, path: "/games/clause-cutter" },
   ],
   family: [
     { id: 5, title: "Family Law Basics Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
@@ -72,10 +74,11 @@ export default function Dashboard() {
   const currentChallenges = CHALLENGES_BY_CATEGORY[selectedCategory] || [];
 
   const handleChallengeClick = (id: number) => {
-    // Only the first challenge (Tenant Rights Quiz) is functional
-    if (id !== 1) {
-      toast.info("This quiz is coming soon!", {
-        description: `We're building ${currentChallenges.find(c => c.id === id)?.title} for you.`,
+    const challenge = currentChallenges.find(c => c.id === id);
+    // Show toast for challenges without paths
+    if (!challenge?.path) {
+      toast.info("This challenge is coming soon!", {
+        description: `We're building ${challenge?.title} for you.`,
       });
     }
   };
@@ -178,8 +181,8 @@ export default function Dashboard() {
                     <span className="font-bold text-accent-foreground bg-accent px-2 py-0.5 text-sm border border-foreground">
                       +{challenge.xp} XP
                     </span>
-                    {challenge.id === 1 ? (
-                      <Link href="/quiz">
+                    {challenge.path ? (
+                      <Link href={challenge.path}>
                         <Button size="sm" className="rounded-none border-2 border-foreground">
                           {challenge.completed ? "Replay" : "Start"}
                         </Button>

@@ -13,6 +13,8 @@ import Quiz from "./pages/Quiz";
 import Presentation from "./pages/Presentation";
 import Onboarding from "./pages/Onboarding";
 import AuthWrapper from "./components/AuthWrapper";
+import TenantShield from "./pages/games/TenantShield";
+import ClauseCutter from "./pages/games/ClauseCutter";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -27,6 +29,16 @@ function Router() {
         </AuthWrapper>
       </Route>
       <Route path={"/quiz"} component={Quiz} />
+      <Route path={"/games/tenant-shield"}>
+        <AuthWrapper requireAuth requireOnboarding>
+          <TenantShield />
+        </AuthWrapper>
+      </Route>
+      <Route path={"/games/clause-cutter"}>
+        <AuthWrapper requireAuth requireOnboarding>
+          <ClauseCutter />
+        </AuthWrapper>
+      </Route>
       <Route path={"/profile"}>
         <AuthWrapper requireAuth requireOnboarding>
           <Profile />
