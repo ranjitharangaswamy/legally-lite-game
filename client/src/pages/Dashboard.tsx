@@ -26,23 +26,23 @@ const CHALLENGES_BY_CATEGORY: Record<string, Array<{id: number, title: string, t
     { id: 8, title: "Tenant Shield", type: "Mini-Game", difficulty: "Medium", xp: 300, completed: false, path: "/games/tenant-shield" },
   ],
   employment: [
-    { id: 2, title: "Workplace Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
+    { id: 2, title: "Workplace Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false, path: "/quiz?category=employment" },
   ],
   civil: [
-    { id: 3, title: "Court Procedures Quiz", type: "Quiz", difficulty: "Hard", xp: 300, completed: false },
+    { id: 3, title: "Court Procedures Quiz", type: "Quiz", difficulty: "Hard", xp: 300, completed: false, path: "/quiz?category=civil" },
   ],
   consumer: [
-    { id: 4, title: "Consumer Protection Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false },
+    { id: 4, title: "Consumer Protection Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false, path: "/quiz?category=consumer" },
     { id: 9, title: "Clause Cutter", type: "Mini-Game", difficulty: "Medium", xp: 300, completed: false, path: "/games/clause-cutter" },
   ],
   family: [
-    { id: 5, title: "Family Law Basics Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false },
+    { id: 5, title: "Family Law Basics Quiz", type: "Quiz", difficulty: "Medium", xp: 250, completed: false, path: "/quiz?category=family" },
   ],
   general: [
-    { id: 6, title: "Legal Terminology Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false },
+    { id: 6, title: "Legal Terminology Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false, path: "/quiz?category=general" },
   ],
   fundamentals: [
-    { id: 7, title: "Legal System Foundations Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false },
+    { id: 7, title: "Legal System Foundations Quiz", type: "Quiz", difficulty: "Easy", xp: 200, completed: false, path: "/quiz?category=fundamentals" },
   ],
 };
 

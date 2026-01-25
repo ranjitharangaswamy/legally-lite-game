@@ -11,3 +11,7 @@
 - [x] Fix Tenant Shield game - shields and threats not displaying
 - [x] Fix Clause Cutter game - verify gameplay works correctly
 - [x] Fix quiz/daily challenge - answer options not displaying
+- [x] Fix preview loading issue
+- [x] Update leaderboard to remove fake placeholder data
+- [x] Fix dashboard quizzes not loading properly
+- [x] Ensure all category tabs have working quizzes (Housing, Employment, Civil, Consumer, Family, General, Fundamentals)
