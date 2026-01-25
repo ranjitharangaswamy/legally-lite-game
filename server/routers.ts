@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { updateUserState, getUserStats, initializeUserStats, awardXp, updateDisplayName, saveChatMessage, getChatHistory, updateTopicPerformance, getWeakTopics } from "./db";
 import { invokeLLM } from "./_core/llm";
+import { getEnhancedLegalResponse } from "./_core/legalSearch";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -183,41 +184,27 @@ Keep the explanation under 150 words.`;
           content: h.content
         }));
 
-        // Add system prompt
-        const systemPrompt = `You are a friendly legal education assistant helping users learn about ${ctx.user.selectedState || 'US'} state laws. 
+        // Use enhanced legal search with official government sources
+        const { response: assistantMessage, sources } = await getEnhancedLegalResponse(
+          input.message,
+          ctx.user.selectedState || 'WA',
+          messages
+        );
 
-Your role:
-- Explain legal concepts in simple, accessible language
-- Provide accurate, state-specific legal information
-- Encourage learning and ask follow-up questions
-- Always include relevant legal citations
-- Remind users this is educational, not legal advice
-
-Keep responses concise (under 200 words) and conversational.`;
-
-        // Call LLM
-        const response = await invokeLLM({
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...messages,
-            { role: "user", content: input.message }
-          ]
-        });
-
-        const assistantMessage = response.choices[0].message.content;
-        if (typeof assistantMessage !== 'string') {
-          throw new Error('Invalid response from AI');
-        }
+        // Append sources to message if available
+        const messageWithSources = sources.length > 0
+          ? `${assistantMessage}\n\n**Official Sources:**\n${sources.map((url, idx) => `${idx + 1}. ${url}`).join('\n')}`
+          : assistantMessage;
 
         // Save assistant response
         await saveChatMessage({
           userId: ctx.user.id,
           role: "assistant",
-          content: assistantMessage,
+          content: messageWithSources,
           topic: input.topic,
         });
 
-        return { message: assistantMessage };
+        return { message: messageWithSources };
       }),
 
     getChatHistory: protectedProcedure.query(async ({ ctx }) => {
