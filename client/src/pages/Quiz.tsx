@@ -582,9 +582,15 @@ export default function Quiz() {
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [xpAwarded, setXpAwarded] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [useAiQuiz, setUseAiQuiz] = useState(false);
+  const [aiQuestions, setAiQuestions] = useState<Question[]>([]);
+  const [isLoadingAi, setIsLoadingAi] = useState(false);
   
   const { user } = useAuth();
   const awardXpMutation = trpc.user.awardXp.useMutation();
+  const generateQuizMutation = trpc.user.generatePersonalizedQuiz.useMutation();
+  const explainAnswerMutation = trpc.user.explainAnswer.useMutation();
   const utils = trpc.useUtils();
 
   // Get category from URL query parameter
@@ -597,18 +603,95 @@ export default function Quiz() {
   
   // Get questions for user's state, fall back to general questions if no state-specific ones exist
   const stateQuestions = quizData.questions[userState] || quizData.questions['general'] || quizData.questions['WA'];
-  const QUESTIONS = stateQuestions;
+  const QUESTIONS = useAiQuiz && aiQuestions.length > 0 ? aiQuestions : stateQuestions;
+
+  // Generate AI quiz
+  const handleGenerateAiQuiz = async () => {
+    if (!user?.selectedState) return;
+    
+    setIsLoadingAi(true);
+    const topicMap: Record<string, string> = {
+      housing: 'Housing',
+      employment: 'Employment',
+      consumer: 'Consumer Rights',
+      civil: 'Civil Procedure',
+      family: 'Family Law',
+      general: 'General Law',
+      fundamentals: 'Legal Fundamentals'
+    };
+    
+    try {
+      const questions: Question[] = [];
+      for (let i = 0; i < 3; i++) {
+        const difficulty = i === 0 ? 'easy' : i === 1 ? 'medium' : 'hard';
+        const result = await generateQuizMutation.mutateAsync({
+          topic: topicMap[category] || 'Housing',
+          difficulty,
+          state: user.selectedState
+        });
+        
+        questions.push({
+          id: i + 1,
+          question: result.question,
+          options: result.options.map((text: string, idx: number) => ({ 
+            id: String.fromCharCode(97 + idx), // a, b, c, d
+            text 
+          })),
+          correct: String.fromCharCode(97 + result.correctAnswer),
+          explanation: `${result.explanation}\n\n${result.citation}`,
+          state: user.selectedState
+        });
+      }
+      
+      setAiQuestions(questions);
+      setUseAiQuiz(true);
+      setCurrentQuestion(0);
+      setSelectedOption(null);
+      setIsAnswered(false);
+      setScore(0);
+      setShowResults(false);
+      setXpAwarded(false);
+    } catch (error) {
+      console.error('Failed to generate AI quiz:', error);
+    } finally {
+      setIsLoadingAi(false);
+    }
+  };
 
   const handleOptionClick = (optionId: string) => {
     if (isAnswered) return;
     setSelectedOption(optionId);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedOption) return;
     
     const correct = QUESTIONS[currentQuestion].correct === selectedOption;
-    if (correct) setScore(s => s + 1);
+    if (correct) {
+      setScore(s => s + 1);
+      setAiExplanation(null);
+    } else if (user?.selectedState) {
+      // Get AI explanation for wrong answer
+      try {
+        const currentQ = QUESTIONS[currentQuestion];
+        const userAnswerText = currentQ.options.find(o => o.id === selectedOption)?.text || '';
+        const correctAnswerText = currentQ.options.find(o => o.id === currentQ.correct)?.text || '';
+        
+        const result = await explainAnswerMutation.mutateAsync({
+          question: currentQ.question,
+          userAnswer: userAnswerText,
+          correctAnswer: correctAnswerText,
+          topic: quizData.title,
+          state: user.selectedState
+        });
+        
+        if (typeof result.explanation === 'string') {
+          setAiExplanation(result.explanation);
+        }
+      } catch (error) {
+        console.error('Failed to get AI explanation:', error);
+      }
+    }
     setIsAnswered(true);
   };
 
@@ -617,6 +700,7 @@ export default function Quiz() {
       setCurrentQuestion(c => c + 1);
       setSelectedOption(null);
       setIsAnswered(false);
+      setAiExplanation(null);
     } else {
       setShowResults(true);
     }
@@ -692,13 +776,29 @@ export default function Quiz() {
       <div className="max-w-3xl mx-auto pt-8">
         {/* Header */}
         <div className="mb-6 bg-primary text-primary-foreground p-4 border-4 border-foreground shadow-[6px_6px_0px_0px_var(--color-foreground)]">
-          <h1 className="text-3xl font-black uppercase text-center">{quizData.title}</h1>
-          <p className="text-center font-bold mt-2">
-            {userState === 'CA' && '📍 California Law'}
-            {userState === 'NY' && '📍 New York Law'}
-            {userState === 'TX' && '📍 Texas Law'}
-            {userState === 'WA' && '📍 Washington Law'}
-          </p>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h1 className="text-3xl font-black uppercase text-center">{quizData.title}</h1>
+              <p className="text-center font-bold mt-2">
+                {userState === 'CA' && '📍 California Law'}
+                {userState === 'NY' && '📍 New York Law'}
+                {userState === 'TX' && '📍 Texas Law'}
+                {userState === 'WA' && '📍 Washington Law'}
+                {useAiQuiz && ' 🤖 AI-Personalized'}
+              </p>
+            </div>
+            {!useAiQuiz && (
+              <Button
+                onClick={handleGenerateAiQuiz}
+                disabled={isLoadingAi}
+                size="sm"
+                variant="outline"
+                className="bg-background text-foreground border-2 border-foreground font-bold"
+              >
+                {isLoadingAi ? '🤖 Generating...' : '🤖 AI Quiz'}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Progress Bar */}
@@ -769,6 +869,12 @@ export default function Quiz() {
                   <p className="text-sm font-bold">
                     {QUESTIONS[currentQuestion].explanation}
                   </p>
+                  {aiExplanation && selectedOption !== QUESTIONS[currentQuestion].correct && (
+                    <div className="mt-4 p-3 bg-background/50 border border-foreground/30 rounded">
+                      <div className="text-xs font-black uppercase mb-1 text-primary">🤖 AI Tutor Explanation:</div>
+                      <p className="text-sm">{aiExplanation}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -53,3 +53,7 @@
 - [x] Create backend mutation to update display name
 - [x] Add display name input to Profile settings
 - [x] Update all components to show display name
+- [x] Create backend API for AI-generated personalized quiz questions
+- [x] Add AI-powered explanations for incorrect quiz answers
+- [x] Update Quiz component to integrate AI features
+- [x] Add loading states and error handling for AI operations
