@@ -44,7 +44,7 @@ type Clause = {
 
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 800;
-const CLAUSE_SPAWN_INTERVAL = 3500; // Increased from 2000ms to give more reading time
+const CLAUSE_SPAWN_INTERVAL = 2000;
 const GAME_DURATION = 60000; // 60 seconds
 
 export default function ClauseCutter() {
@@ -88,8 +88,8 @@ export default function ClauseCutter() {
           y: 0 // Start at top
         },
         velocity: {
-          x: (Math.random() - 0.5) * 1, // Reduced horizontal movement
-          y: 1.5 + Math.random() * 1 // Slower falling speed (was 3 + random * 2)
+          x: (Math.random() - 0.5) * 2,
+          y: 3 + Math.random() * 2 // Fall downward
         },
         sliced: false
       };
