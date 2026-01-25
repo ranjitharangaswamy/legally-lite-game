@@ -15,3 +15,5 @@
 - [x] Update leaderboard to remove fake placeholder data
 - [x] Fix dashboard quizzes not loading properly
 - [x] Ensure all category tabs have working quizzes (Housing, Employment, Civil, Consumer, Family, General, Fundamentals)
+- [x] Fix missing button text on home page hero section
+- [x] Simplify dashboard by removing legal category labels and showing only game names
