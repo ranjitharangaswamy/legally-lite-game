@@ -18,6 +18,7 @@ const ALL_CHALLENGES = [
   
   // MEDIUM challenges
   { id: 11, title: "Court Process Sorter", type: "Mini-Game", difficulty: "Medium", xp: 300, topic: "Civil Procedure", completed: false, path: "/games/court-sorter", icon: <Gamepad2 className="h-6 w-6" /> },
+  { id: 12, title: "Tenant Law Sorter", type: "Mini-Game", difficulty: "Medium", xp: 350, topic: "Housing Law", completed: false, path: "/games/tenant-law-sorter", icon: <Gamepad2 className="h-6 w-6" /> },
   { id: 1, title: "Tenant Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, topic: "Housing Law", completed: false, path: "/quiz", icon: <BookOpen className="h-6 w-6" /> },
   { id: 8, title: "Tenant Shield", type: "Mini-Game", difficulty: "Medium", xp: 300, topic: "Housing Law", completed: false, path: "/games/tenant-shield", icon: <Gamepad2 className="h-6 w-6" /> },
   { id: 2, title: "Workplace Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, topic: "Employment", completed: false, path: "/quiz?category=employment", icon: <BookOpen className="h-6 w-6" /> },

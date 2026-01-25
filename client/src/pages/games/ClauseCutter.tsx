@@ -85,11 +85,11 @@ export default function ClauseCutter() {
         ...randomClause,
         position: {
           x: Math.random() * (GAME_WIDTH - 200) + 100,
-          y: GAME_HEIGHT
+          y: 0 // Start at top
         },
         velocity: {
           x: (Math.random() - 0.5) * 2,
-          y: -3 - Math.random() * 2
+          y: 3 + Math.random() * 2 // Fall downward
         },
         sliced: false
       };
@@ -114,8 +114,8 @@ export default function ClauseCutter() {
           const newX = clause.position.x + clause.velocity.x;
           const newVelocityY = clause.velocity.y + 0.2; // Gravity
 
-          // Check if clause fell off screen
-          if (newY < -100) {
+          // Check if clause fell off screen (bottom)
+          if (newY > GAME_HEIGHT + 100) {
             if (clause.type === "illegal" || clause.type === "scam") {
               // Missed an illegal clause
               setLives(prev => prev - 1);
@@ -287,7 +287,7 @@ export default function ClauseCutter() {
                   )}
                   style={{
                     left: `${clause.position.x}px`,
-                    bottom: `${clause.position.y}px`,
+                    top: `${clause.position.y}px`,
                     maxWidth: "300px"
                   }}
                   disabled={clause.sliced}

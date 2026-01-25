@@ -38,3 +38,8 @@
 - [x] Add Legal Concept Match to dashboard
 - [x] Fix Clause Cutter game - server restarted to clear build cache
 - [x] Test XP awards and leaderboard updates with real user data
+- [x] Add smooth gliding animations to Court Process Sorter
+- [x] Add auto-win detection to Court Process Sorter
+- [x] Create Tenant Law Sorter drag-and-drop categorization game
+- [x] Add Tenant Law Sorter to dashboard and routes
+- [x] Fix Clause Cutter - clauses not rendering in game area

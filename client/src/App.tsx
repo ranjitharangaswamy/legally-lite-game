@@ -17,6 +17,7 @@ import TenantShield from "./pages/games/TenantShield";
 import ClauseCutter from "./pages/games/ClauseCutter";
 import CourtProcessSorter from "./pages/games/CourtProcessSorter";
 import LegalConceptMatch from "./pages/games/LegalConceptMatch";
+import TenantLawSorter from "./pages/games/TenantLawSorter";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -45,10 +46,14 @@ function Router() {
         <AuthWrapper requireAuth requireOnboarding>
           <CourtProcessSorter />
         </AuthWrapper>
-      </Route>
-      <Route path={"/games/concept-match"}>
+      </Route>      <Route path="/games/concept-match">
         <AuthWrapper requireAuth requireOnboarding>
           <LegalConceptMatch />
+        </AuthWrapper>
+      </Route>
+      <Route path="/games/tenant-law-sorter">
+        <AuthWrapper requireAuth requireOnboarding>
+          <TenantLawSorter />
         </AuthWrapper>
       </Route>
       <Route path={"/profile"}>

@@ -56,6 +56,15 @@ export default function CourtProcessSorter() {
       [newSteps[index1], newSteps[index2]] = [newSteps[index2], newSteps[index1]];
       setSteps(newSteps);
       setSelectedStep(null);
+      
+      // Check if correct order after swap
+      const isCorrect = newSteps.every((step, index) => step.order === index + 1);
+      if (isCorrect) {
+        setTimeout(() => {
+          setGameState("won");
+          setFeedback("Perfect! You've arranged all the steps in the correct order.");
+        }, 600); // Delay to show animation
+      }
     }
   };
 
@@ -156,13 +165,17 @@ export default function CourtProcessSorter() {
                     key={step.id}
                     onClick={() => handleStepClick(step.id)}
                     className={cn(
-                      "w-full p-4 border-2 border-foreground rounded-none text-left transition-all",
+                      "w-full p-4 border-2 border-foreground rounded-none text-left",
                       "hover:translate-x-1 hover:translate-y-1 hover:shadow-none",
                       "shadow-[4px_4px_0px_0px_var(--color-foreground)]",
+                      "transition-all duration-500 ease-in-out",
                       selectedStep === step.id
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-primary text-primary-foreground scale-105"
                         : "bg-background hover:bg-muted"
                     )}
+                    style={{
+                      transform: selectedStep === step.id ? 'scale(1.05)' : 'scale(1)',
+                    }}
                   >
                     <div className="flex items-center gap-4">
                       <div className={cn(
