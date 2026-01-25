@@ -6,3 +6,8 @@
 - [x] Implement "Clause Cutter" slash game for Consumer Rights
 - [x] Update Dashboard to reflect new game types
 - [x] Create state-specific legal content JSON files
+- [x] Fix preview loading failure issue
+- [x] Remove Practice Scenarios section from front page
+- [x] Fix Tenant Shield game - shields and threats not displaying
+- [x] Fix Clause Cutter game - verify gameplay works correctly
+- [x] Fix quiz/daily challenge - answer options not displaying

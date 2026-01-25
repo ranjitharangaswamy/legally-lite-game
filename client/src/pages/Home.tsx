@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { cn } from "@/lib/utils";
-import { ArrowRight, BookOpen, Gavel, Scale, Shield } from "lucide-react";
+import { ArrowRight, Scale, Shield } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -82,7 +82,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         <FeatureCard 
           icon={<Scale className="h-10 w-10" />}
           title="Learn Your Rights"
@@ -90,16 +90,10 @@ export default function Home() {
           delay={0}
         />
         <FeatureCard 
-          icon={<Gavel className="h-10 w-10" />}
-          title="Practice Scenarios"
-          description="Roleplay with virtual court clerks and navigate real-world legal situations without the risk."
-          delay={100}
-        />
-        <FeatureCard 
           icon={<Shield className="h-10 w-10" />}
           title="Earn Badges"
           description="Track your progress, maintain streaks, and become a legal eagle with our gamified learning system."
-          delay={200}
+          delay={100}
         />
       </section>
 

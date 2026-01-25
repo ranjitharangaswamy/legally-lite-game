@@ -6,7 +6,27 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft, Heart, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import clauseData from "@/data/clauseDatabase.json";
+// Inline game data to avoid JSON import issues
+const clauseData = {
+  illegal: [
+    { text: "You waive all rights to sue", explanation: "Illegal - Cannot waive right to legal action", points: 10 },
+    { text: "Landlord not liable for any damages", explanation: "Illegal - Cannot disclaim all liability", points: 10 },
+    { text: "Automatic renewal without notice", explanation: "Illegal - Must provide renewal notice", points: 10 },
+    { text: "No refunds under any circumstances", explanation: "Illegal - Consumer protection laws apply", points: 10 }
+  ],
+  legal: [
+    { text: "Payment due within 30 days", explanation: "Legal - Standard payment term", penalty: 5 },
+    { text: "Arbitration for disputes", explanation: "Legal - Valid dispute resolution", penalty: 5 },
+    { text: "30-day cancellation notice required", explanation: "Legal - Reasonable notice period", penalty: 5 },
+    { text: "Late fees apply after grace period", explanation: "Legal - Standard late fee policy", penalty: 5 }
+  ],
+  scams: [
+    { text: "Send gift cards for payment", explanation: "SCAM - Never pay with gift cards!", bonus: 15 },
+    { text: "Wire money to claim prize", explanation: "SCAM - Prize scams are fraudulent", bonus: 15 },
+    { text: "Share social security for verification", explanation: "SCAM - Never share SSN unsolicited", bonus: 15 },
+    { text: "Click here to avoid account suspension", explanation: "SCAM - Phishing attempt", bonus: 15 }
+  ]
+};
 
 type Clause = {
   id: string;
@@ -49,9 +69,9 @@ export default function ClauseCutter() {
 
     const spawnClause = () => {
       const allClauses = [
-        ...clauseData.illegalClauses.map(c => ({ ...c, type: "illegal" as const })),
-        ...clauseData.legalClauses.map(c => ({ ...c, type: "legal" as const })),
-        ...clauseData.scamBombs.map(c => ({ ...c, type: "scam" as const }))
+        ...clauseData.illegal.map((c: any) => ({ ...c, type: "illegal" as const })),
+        ...clauseData.legal.map((c: any) => ({ ...c, type: "legal" as const })),
+        ...clauseData.scams.map((c: any) => ({ ...c, type: "scam" as const }))
       ];
 
       const randomClause = allClauses[Math.floor(Math.random() * allClauses.length)];
