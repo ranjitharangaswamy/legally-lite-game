@@ -50,6 +50,7 @@ export default function TenantLawSorter() {
   const [selectedItem, setSelectedItem] = useState<LawItem | null>(null);
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [incorrectCategory, setIncorrectCategory] = useState<string | null>(null);
   const [xpAwarded, setXpAwarded] = useState(false);
 
   const awardXpMutation = trpc.user.awardXp.useMutation();
@@ -94,6 +95,7 @@ export default function TenantLawSorter() {
       setUnsortedItems(prev => prev.filter(item => item.id !== selectedItem.id));
       setScore(prev => prev + 10);
       setFeedback({ text: "Correct! +10 points", type: "success" });
+      setIncorrectCategory(null);
 
       // Check if game is won
       if (unsortedItems.length === 1) {
@@ -103,6 +105,8 @@ export default function TenantLawSorter() {
       }
     } else {
       setFeedback({ text: "Not quite! Try another category", type: "error" });
+      setIncorrectCategory(categoryId);
+      setTimeout(() => setIncorrectCategory(null), 1500);
     }
 
     setSelectedItem(null);
@@ -212,9 +216,11 @@ export default function TenantLawSorter() {
                       className={cn(
                         "border-4 border-foreground rounded-none p-4 text-left transition-all",
                         "hover:translate-x-1 hover:translate-y-1",
-                        selectedItem ? "cursor-pointer" : "cursor-not-allowed opacity-60"
+                        selectedItem ? "cursor-pointer" : "cursor-not-allowed opacity-60",
+                        incorrectCategory === category.id && "bg-red-100 border-red-500 animate-pulse"
                       )}
                     >
+
                       <div className="flex items-center gap-3 mb-3">
                         <div className={cn("w-12 h-12 rounded-full flex items-center justify-center", category.color)}>
                           <Icon className="h-6 w-6 text-white" />

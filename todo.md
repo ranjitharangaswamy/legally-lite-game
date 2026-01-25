@@ -45,3 +45,5 @@
 - [x] Fix Clause Cutter - clauses not rendering in game area
 - [x] Increase LEGALLY LITE heading size on homepage
 - [x] Update homepage text to replace "Washington" with "your state laws in the United States"
+- [x] Add green/red visual feedback to Tenant Law Sorter for correct/incorrect sorting
+- [ ] Slow down Clause Cutter game pace for better readability
