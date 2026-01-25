@@ -3,17 +3,18 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Heart, Shield, Zap } from "lucide-react";
+import { ArrowLeft, Heart, Shield, Zap, CheckCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
+
 // Inline game data to avoid JSON import issues
 const housingRightsData = {
   states: {
     California: {
       rights: [
         { id: "rent-control", name: "Rent Control Protection", description: "Limits annual rent increases to 5% + inflation under AB 1482", blocks: ["excessive-rent-hike"], icon: "💰" },
-        { id: "24hr-notice", name: "24-Hour Entry Notice", description: "Landlords must give 24 hours written notice before entering", blocks: ["surprise-inspection", "privacy-violation"], icon: "🕐" },
-        { id: "habitability", name: "Habitability Guarantee", description: "Landlord must maintain safe, livable conditions", blocks: ["no-repairs", "unsafe-conditions"], icon: "🏠" },
+        { id: "24hr-notice", name: "24-Hour Entry Notice", description: "Landlords must give 24 hours written notice before entering", blocks: ["surprise-inspection"], icon: "🕐" },
+        { id: "habitability", name: "Habitability Guarantee", description: "Landlord must maintain safe, livable conditions", blocks: ["no-repairs"], icon: "🏠" },
         { id: "security-deposit", name: "Security Deposit Limits", description: "Deposits limited to 2 months rent for unfurnished units", blocks: ["excessive-deposit"], icon: "🔒" }
       ],
       threats: [
@@ -42,8 +43,6 @@ type Threat = {
   damage: number;
 };
 
-const GRID_ROWS = 3;
-const GRID_COLS = 5;
 const MAX_LIVES = 3;
 
 export default function TenantShield() {
@@ -51,87 +50,71 @@ export default function TenantShield() {
   const [gameState, setGameState] = useState<"setup" | "playing" | "won" | "lost">("setup");
   const [lives, setLives] = useState(MAX_LIVES);
   const [score, setScore] = useState(0);
-  const [wave, setWave] = useState(1);
+  const [currentThreatIndex, setCurrentThreatIndex] = useState(0);
   const [selectedRight, setSelectedRight] = useState<Right | null>(null);
-  const [placedShields, setPlacedShields] = useState<Map<string, Right>>(new Map());
   const [rights, setRights] = useState<Right[]>([]);
   const [allThreats, setAllThreats] = useState<Threat[]>([]);
-  const [currentThreats, setCurrentThreats] = useState<Threat[]>([]);
-  const [showResult, setShowResult] = useState(false);
+  const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
+  const [usedRights, setUsedRights] = useState<Set<string>>(new Set());
 
   // Load state-specific data on mount
   useEffect(() => {
-    // Always load California data (can be extended for other states later)
     const stateData = housingRightsData.states.California;
     setRights(stateData.rights);
     setAllThreats(stateData.threats);
-  }, []); // Empty dependency array - load once on mount
+  }, []);
 
   const startGame = () => {
     setGameState("playing");
     setLives(MAX_LIVES);
     setScore(0);
-    setWave(1);
-    setPlacedShields(new Map());
+    setCurrentThreatIndex(0);
     setSelectedRight(null);
-    setShowResult(false);
-    startWave(1);
+    setFeedback(null);
+    setUsedRights(new Set());
   };
 
-  const startWave = (waveNum: number) => {
-    const threatsCount = Math.min(waveNum + 1, allThreats.length);
-    const threats = allThreats.slice(0, threatsCount);
-    setCurrentThreats(threats);
-    setShowResult(false);
-  };
+  const currentThreat = allThreats[currentThreatIndex];
 
-  const placeShield = (row: number, col: number) => {
-    if (!selectedRight || gameState !== "playing" || showResult) return;
+  const handleShieldSelection = (right: Right) => {
+    if (feedback !== null || !currentThreat) return;
     
-    const cellKey = `${row}-${col}`;
-    if (placedShields.has(cellKey)) return;
-
-    const newShields = new Map(placedShields);
-    newShields.set(cellKey, selectedRight);
-    setPlacedShields(newShields);
-    setSelectedRight(null);
-  };
-
-  const evaluateWave = () => {
-    setShowResult(true);
-    let blocked = 0;
-    let unblocked = 0;
-
-    currentThreats.forEach(threat => {
-      const hasDefense = Array.from(placedShields.values()).some(shield => 
-        shield.blocks.includes(threat.id)
-      );
+    setSelectedRight(right);
+    
+    // Check if the selected shield blocks the current threat
+    const isCorrect = right.blocks.includes(currentThreat.id);
+    
+    setFeedback(isCorrect ? "correct" : "incorrect");
+    
+    if (isCorrect) {
+      // Correct answer
+      setScore(prev => prev + 100);
+      setUsedRights(prev => new Set(Array.from(prev).concat(right.id)));
       
-      if (hasDefense) {
-        blocked++;
-        setScore(prev => prev + 50);
-      } else {
-        unblocked++;
-      }
-    });
-
-    if (unblocked > 0) {
-      const newLives = lives - unblocked;
+      // Move to next threat after delay
+      setTimeout(() => {
+        if (currentThreatIndex < allThreats.length - 1) {
+          setCurrentThreatIndex(prev => prev + 1);
+          setSelectedRight(null);
+          setFeedback(null);
+        } else {
+          // Won the game!
+          setGameState("won");
+        }
+      }, 2000);
+    } else {
+      // Incorrect answer
+      const newLives = lives - 1;
       setLives(newLives);
       
-      if (newLives <= 0) {
-        setTimeout(() => setGameState("lost"), 2000);
-        return;
-      }
-    }
-
-    if (wave >= 3) {
-      setTimeout(() => setGameState("won"), 2000);
-    } else {
       setTimeout(() => {
-        setWave(wave + 1);
-        setScore(prev => prev + 100);
-        startWave(wave + 1);
+        if (newLives <= 0) {
+          setGameState("lost");
+        } else {
+          // Continue with same threat
+          setSelectedRight(null);
+          setFeedback(null);
+        }
       }, 2000);
     }
   };
@@ -148,7 +131,7 @@ export default function TenantShield() {
 
   return (
     <Layout>
-      <div className="container mx-auto py-8 max-w-6xl">
+      <div className="container mx-auto py-8 max-w-4xl">
         <Link href="/dashboard">
           <Button variant="outline" className="mb-4 border-2 border-foreground rounded-none">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
@@ -176,7 +159,7 @@ export default function TenantShield() {
             <Card className="border-2 border-foreground rounded-none p-4">
               <div className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-blue-500" />
-                <span className="font-bold">Wave: {wave}/3</span>
+                <span className="font-bold">Threat: {currentThreatIndex + 1}/{allThreats.length}</span>
               </div>
             </Card>
           </div>
@@ -184,7 +167,7 @@ export default function TenantShield() {
           {gameState === "setup" && (
             <div className="text-center py-12">
               <h2 className="text-2xl font-bold mb-4">Ready to Defend Your Rights?</h2>
-              <p className="mb-6">Place legal shields on the grid to block incoming threats from your landlord.</p>
+              <p className="mb-6">For each threat, select the correct legal shield that protects you!</p>
               {rights.length === 0 || allThreats.length === 0 ? (
                 <p className="text-muted-foreground">Loading game data...</p>
               ) : (
@@ -198,90 +181,84 @@ export default function TenantShield() {
             </div>
           )}
 
-          {gameState === "playing" && (
+          {gameState === "playing" && currentThreat && (
             <>
-              {/* Current Threats */}
-              {currentThreats.length > 0 && !showResult && (
-                <div className="mb-6 p-4 border-2 border-red-500 bg-red-50 dark:bg-red-950">
-                  <h3 className="font-bold text-red-700 dark:text-red-300 mb-2">⚠️ Incoming Threats!</h3>
-                  {currentThreats.map(threat => (
-                    <div key={threat.id} className="text-sm mb-1">
-                      • {threat.name}: {threat.description}
-                    </div>
-                  ))}
+              {/* Current Threat */}
+              <div className={cn(
+                "mb-6 p-6 border-4 border-foreground",
+                feedback === null && "bg-red-50 dark:bg-red-950",
+                feedback === "correct" && "bg-green-50 dark:bg-green-950",
+                feedback === "incorrect" && "bg-red-100 dark:bg-red-900"
+              )}>
+                <div className="flex items-start gap-3">
+                  <div className="text-3xl">⚠️</div>
+                  <div className="flex-1">
+                    <h3 className="font-black text-xl mb-2 uppercase">Incoming Threat!</h3>
+                    <p className="font-bold text-lg mb-1">{currentThreat.name}</p>
+                    <p className="text-sm">{currentThreat.description}</p>
+                  </div>
+                  {feedback === "correct" && (
+                    <CheckCircle className="h-8 w-8 text-green-600 flex-shrink-0" />
+                  )}
+                  {feedback === "incorrect" && (
+                    <XCircle className="h-8 w-8 text-red-600 flex-shrink-0" />
+                  )}
                 </div>
-              )}
-
-              {/* Available Rights */}
-              <div className="mb-6">
-                <h3 className="font-bold mb-3">Select a Legal Shield:</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {rights.map(right => (
-                    <button
-                      key={right.id}
-                      onClick={() => setSelectedRight(right)}
-                      disabled={showResult}
-                      className={cn(
-                        "border-2 border-foreground rounded-none p-3 text-left hover:bg-accent transition-colors",
-                        selectedRight?.id === right.id && "bg-accent ring-2 ring-primary",
-                        showResult && "opacity-50 cursor-not-allowed"
-                      )}
-                    >
-                      <div className="text-2xl mb-1">{right.icon}</div>
-                      <div className="font-bold text-sm">{right.name}</div>
-                      <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{right.description}</div>
-                    </button>
-                  ))}
-                </div>
-                {selectedRight && !showResult && (
-                  <p className="text-sm mt-2 text-accent font-bold">
-                    ✓ {selectedRight.name} selected - Click a grid cell to place it!
-                  </p>
+                
+                {feedback === "correct" && (
+                  <div className="mt-4 p-3 bg-green-200 dark:bg-green-800 border-2 border-green-600 text-green-900 dark:text-green-100 font-bold">
+                    ✓ Correct! You blocked the threat with {selectedRight?.name}!
+                  </div>
+                )}
+                {feedback === "incorrect" && (
+                  <div className="mt-4 p-3 bg-red-200 dark:bg-red-800 border-2 border-red-600 text-red-900 dark:text-red-100 font-bold">
+                    ✗ Wrong shield! You lost a life. Try again!
+                  </div>
                 )}
               </div>
 
-              {/* Grid */}
+              {/* Available Rights */}
               <div className="mb-6">
-                <h3 className="font-bold mb-2">Your Apartment Grid:</h3>
-                <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)` }}>
-                  {Array.from({ length: GRID_ROWS }).map((_, rowIndex) =>
-                    Array.from({ length: GRID_COLS }).map((_, colIndex) => {
-                      const cellKey = `${rowIndex}-${colIndex}`;
-                      const shield = placedShields.get(cellKey);
-                      return (
-                        <button
-                          key={cellKey}
-                          onClick={() => placeShield(rowIndex, colIndex)}
-                          disabled={!selectedRight || showResult || !!shield}
-                          className={cn(
-                            "aspect-square border-2 border-foreground bg-background hover:bg-muted transition-colors flex items-center justify-center text-3xl",
-                            selectedRight && !shield && !showResult && "cursor-pointer hover:bg-accent",
-                            shield && "bg-secondary"
-                          )}
-                        >
-                          {shield && shield.icon}
-                        </button>
-                      );
-                    })
-                  )}
+                <h3 className="font-bold mb-3 text-lg">Select the Legal Shield to Block This Threat:</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {rights.map(right => {
+                    const isUsed = usedRights.has(right.id);
+                    const isSelected = selectedRight?.id === right.id;
+                    const showCorrect = feedback === "correct" && isSelected;
+                    const showIncorrect = feedback === "incorrect" && isSelected;
+                    
+                    return (
+                      <button
+                        key={right.id}
+                        onClick={() => handleShieldSelection(right)}
+                        disabled={feedback !== null || isUsed}
+                        className={cn(
+                          "border-4 border-foreground rounded-none p-4 text-left transition-all",
+                          "hover:bg-accent hover:scale-105",
+                          isUsed && "opacity-40 cursor-not-allowed bg-muted",
+                          showCorrect && "bg-green-200 dark:bg-green-900 border-green-600",
+                          showIncorrect && "bg-red-200 dark:bg-red-900 border-red-600",
+                          !isUsed && !showCorrect && !showIncorrect && "bg-background",
+                          feedback !== null && "pointer-events-none"
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="text-4xl flex-shrink-0">{right.icon}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-base mb-1">{right.name}</div>
+                            <div className="text-xs text-muted-foreground">{right.description}</div>
+                            {isUsed && (
+                              <div className="text-xs font-bold text-green-600 mt-2">✓ Already Used</div>
+                            )}
+                          </div>
+                          {showCorrect && <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0" />}
+                          {showIncorrect && <XCircle className="h-6 w-6 text-red-600 flex-shrink-0" />}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-
-              {!showResult && placedShields.size > 0 && (
-                <Button 
-                  onClick={evaluateWave}
-                  className="w-full bg-primary text-primary-foreground border-2 border-foreground rounded-none"
-                >
-                  Defend Against Wave {wave}!
-                </Button>
-              )}
-
-              {showResult && (
-                <div className="p-4 border-2 border-foreground bg-muted">
-                  <h3 className="font-bold mb-2">Wave {wave} Result:</h3>
-                  <p className="text-sm">Evaluating your defenses...</p>
-                </div>
-              )}
             </>
           )}
 
@@ -289,6 +266,7 @@ export default function TenantShield() {
             <div className="text-center py-12">
               <h2 className="text-3xl font-black text-green-600 mb-4">🎉 Victory!</h2>
               <p className="text-xl mb-2">You successfully defended your apartment!</p>
+              <p className="text-lg mb-2">You correctly matched all threats with their legal protections.</p>
               <p className="text-2xl font-bold mb-6">Final Score: {score}</p>
               <div className="flex gap-4 justify-center">
                 <Button onClick={startGame} className="bg-primary text-primary-foreground border-2 border-foreground rounded-none">
@@ -305,8 +283,8 @@ export default function TenantShield() {
 
           {gameState === "lost" && (
             <div className="text-center py-12">
-              <h2 className="text-3xl font-black text-red-600 mb-4">Evicted!</h2>
-              <p className="text-xl mb-2">The landlord's illegal actions succeeded.</p>
+              <h2 className="text-3xl font-black text-red-600 mb-4">Game Over!</h2>
+              <p className="text-xl mb-2">You ran out of lives.</p>
               <p className="text-lg mb-6">Final Score: {score}</p>
               <div className="flex gap-4 justify-center">
                 <Button onClick={startGame} className="bg-primary text-primary-foreground border-2 border-foreground rounded-none">

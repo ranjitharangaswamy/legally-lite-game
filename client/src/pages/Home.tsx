@@ -20,13 +20,6 @@ export default function Home() {
         </div>
         
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <div className={cn(
-            "inline-block mb-4 px-4 py-1 bg-secondary text-secondary-foreground font-bold border-2 border-foreground transform",
-            !reduceMotion && "-rotate-2"
-          )}>
-            WASHINGTON LAW DECODED
-          </div>
-          
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter uppercase leading-none">
             Legally <span className="text-primary underline decoration-4 underline-offset-8">Lite</span>
           </h1>

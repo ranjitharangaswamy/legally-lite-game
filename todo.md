@@ -17,3 +17,6 @@
 - [x] Ensure all category tabs have working quizzes (Housing, Employment, Civil, Consumer, Family, General, Fundamentals)
 - [x] Fix missing button text on home page hero section
 - [x] Simplify dashboard by removing legal category labels and showing only game names
+- [x] Update Tenant Shield to show threats one at a time
+- [x] Add green/red feedback for correct/incorrect shield placement in Tenant Shield
+- [x] Remove 'Washington Law Decoded' badge from home page
