@@ -66,3 +66,35 @@ export const userStats = mysqlTable("user_stats", {
 
 export type UserStats = typeof userStats.$inferSelect;
 export type InsertUserStats = typeof userStats.$inferInsert;
+
+/**
+ * Chat messages for AI legal assistant
+ */
+export const chatMessages = mysqlTable("chat_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  role: mysqlEnum("role", ["user", "assistant"]).notNull(),
+  content: text("content").notNull(),
+  topic: varchar("topic", { length: 64 }), // e.g., "housing", "employment"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
+/**
+ * Topic performance tracking for adaptive difficulty
+ */
+export const topicPerformance = mysqlTable("topic_performance", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  topic: varchar("topic", { length: 64 }).notNull(), // e.g., "housing", "employment", "consumer"
+  totalAttempts: int("totalAttempts").default(0).notNull(),
+  correctAnswers: int("correctAnswers").default(0).notNull(),
+  lastAttemptDate: timestamp("lastAttemptDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TopicPerformance = typeof topicPerformance.$inferSelect;
+export type InsertTopicPerformance = typeof topicPerformance.$inferInsert;

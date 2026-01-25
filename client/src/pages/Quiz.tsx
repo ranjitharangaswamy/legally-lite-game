@@ -588,14 +588,17 @@ export default function Quiz() {
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   
   const { user } = useAuth();
-  const awardXpMutation = trpc.user.awardXp.useMutation();
-  const generateQuizMutation = trpc.user.generatePersonalizedQuiz.useMutation();
-  const explainAnswerMutation = trpc.user.explainAnswer.useMutation();
-  const utils = trpc.useUtils();
-
+  
   // Get category from URL query parameter
   const urlParams = new URLSearchParams(window.location.search);
   const category = urlParams.get('category') || 'housing';
+  
+  const awardXpMutation = trpc.user.awardXp.useMutation();
+  const generateQuizMutation = trpc.user.generatePersonalizedQuiz.useMutation();
+  const explainAnswerMutation = trpc.user.explainAnswer.useMutation();
+  const recordAnswerMutation = trpc.user.recordQuizAnswer.useMutation();
+  const { data: adaptiveDifficulty } = trpc.user.getAdaptiveDifficulty.useQuery({ topic: category });
+  const utils = trpc.useUtils();
   const quizData = QUIZ_DATA[category] || QUIZ_DATA.housing;
   
   // Get user's selected state (default to WA if not set)
@@ -622,8 +625,13 @@ export default function Quiz() {
     
     try {
       const questions: Question[] = [];
+      // Use adaptive difficulty if user needs more practice
+      const baseDifficulty = adaptiveDifficulty?.needsMorePractice ? 'easy' : 'medium';
+      
       for (let i = 0; i < 3; i++) {
-        const difficulty = i === 0 ? 'easy' : i === 1 ? 'medium' : 'hard';
+        const difficulty = adaptiveDifficulty?.needsMorePractice 
+          ? (i === 0 ? 'easy' : i === 1 ? 'easy' : 'medium') // More easy questions for weak topics
+          : (i === 0 ? 'easy' : i === 1 ? 'medium' : 'hard'); // Normal progression
         const result = await generateQuizMutation.mutateAsync({
           topic: topicMap[category] || 'Housing',
           difficulty,
@@ -667,6 +675,13 @@ export default function Quiz() {
     if (!selectedOption) return;
     
     const correct = QUESTIONS[currentQuestion].correct === selectedOption;
+    
+    // Record answer for adaptive difficulty
+    recordAnswerMutation.mutate({
+      topic: category,
+      isCorrect: correct
+    });
+    
     if (correct) {
       setScore(s => s + 1);
       setAiExplanation(null);

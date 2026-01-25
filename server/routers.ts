@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { updateUserState, getUserStats, initializeUserStats, awardXp, updateDisplayName } from "./db";
+import { updateUserState, getUserStats, initializeUserStats, awardXp, updateDisplayName, saveChatMessage, getChatHistory, updateTopicPerformance, getWeakTopics } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { z } from "zod";
 
@@ -160,6 +160,198 @@ Keep the explanation under 150 words.`;
         });
 
         return { explanation: response.choices[0].message.content };
+      }),
+
+    chat: protectedProcedure
+      .input(z.object({
+        message: z.string(),
+        topic: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Save user message
+        await saveChatMessage({
+          userId: ctx.user.id,
+          role: "user",
+          content: input.message,
+          topic: input.topic,
+        });
+
+        // Get chat history for context
+        const history = await getChatHistory(ctx.user.id, 10);
+        const messages = history.map(h => ({
+          role: h.role as "user" | "assistant",
+          content: h.content
+        }));
+
+        // Add system prompt
+        const systemPrompt = `You are a friendly legal education assistant helping users learn about ${ctx.user.selectedState || 'US'} state laws. 
+
+Your role:
+- Explain legal concepts in simple, accessible language
+- Provide accurate, state-specific legal information
+- Encourage learning and ask follow-up questions
+- Always include relevant legal citations
+- Remind users this is educational, not legal advice
+
+Keep responses concise (under 200 words) and conversational.`;
+
+        // Call LLM
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...messages,
+            { role: "user", content: input.message }
+          ]
+        });
+
+        const assistantMessage = response.choices[0].message.content;
+        if (typeof assistantMessage !== 'string') {
+          throw new Error('Invalid response from AI');
+        }
+
+        // Save assistant response
+        await saveChatMessage({
+          userId: ctx.user.id,
+          role: "assistant",
+          content: assistantMessage,
+          topic: input.topic,
+        });
+
+        return { message: assistantMessage };
+      }),
+
+    getChatHistory: protectedProcedure.query(async ({ ctx }) => {
+      return await getChatHistory(ctx.user.id);
+    }),
+
+    recordQuizAnswer: protectedProcedure
+      .input(z.object({
+        topic: z.string(),
+        isCorrect: z.boolean(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await updateTopicPerformance(ctx.user.id, input.topic, input.isCorrect);
+        return { success: true };
+      }),
+
+    getAdaptiveDifficulty: protectedProcedure
+      .input(z.object({
+        topic: z.string(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const weakTopics = await getWeakTopics(ctx.user.id);
+        const isWeak = weakTopics.some(t => t.topic === input.topic);
+        
+        // Return easier difficulty for weak topics
+        return { 
+          difficulty: isWeak ? 'easy' as const : 'medium' as const,
+          needsMorePractice: isWeak 
+        };
+      }),
+
+    generateScenario: protectedProcedure
+      .input(z.object({
+        topic: z.string(),
+        state: z.string().length(2),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const userStats = await getUserStats(ctx.user.id);
+        const level = Math.floor((userStats?.totalXp || 0) / 500) + 1;
+        const weakTopics = await getWeakTopics(ctx.user.id);
+        const isWeakTopic = weakTopics.some(t => t.topic === input.topic);
+
+        const prompt = `You are a legal education expert. Create a realistic legal scenario for a user learning ${input.state} state ${input.topic} law.
+
+User Level: ${level}
+Topic Mastery: ${isWeakTopic ? 'Needs Practice' : 'Progressing'}
+
+Create a scenario that:
+1. Is based on real ${input.state} state laws
+2. Presents a realistic situation someone might encounter
+3. Includes 3-4 decision points where the user must choose actions
+4. Each decision has legal consequences
+5. Is appropriate for level ${level}
+${isWeakTopic ? '6. Focuses on fundamental concepts to reinforce learning' : ''}
+
+Return ONLY valid JSON in this exact format:
+{
+  "title": "Scenario title",
+  "description": "The situation description (2-3 paragraphs)",
+  "decisions": [
+    {
+      "question": "What should you do?",
+      "options": [
+        {"text": "Option A", "isCorrect": true, "explanation": "Why this is right/wrong"},
+        {"text": "Option B", "isCorrect": false, "explanation": "Why this is right/wrong"}
+      ]
+    }
+  ],
+  "legalConcepts": ["Concept 1", "Concept 2"],
+  "citations": ["Citation 1", "Citation 2"]
+}`;
+
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: "You are a legal education expert who creates realistic practice scenarios." },
+            { role: "user", content: prompt }
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "legal_scenario",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  description: { type: "string" },
+                  decisions: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        question: { type: "string" },
+                        options: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              text: { type: "string" },
+                              isCorrect: { type: "boolean" },
+                              explanation: { type: "string" }
+                            },
+                            required: ["text", "isCorrect", "explanation"],
+                            additionalProperties: false
+                          }
+                        }
+                      },
+                      required: ["question", "options"],
+                      additionalProperties: false
+                    }
+                  },
+                  legalConcepts: {
+                    type: "array",
+                    items: { type: "string" }
+                  },
+                  citations: {
+                    type: "array",
+                    items: { type: "string" }
+                  }
+                },
+                required: ["title", "description", "decisions", "legalConcepts", "citations"],
+                additionalProperties: false
+              }
+            }
+          }
+        });
+
+        const content = response.choices[0].message.content;
+        if (typeof content !== 'string') {
+          throw new Error('Invalid response format from AI');
+        }
+        const scenarioData = JSON.parse(content);
+        
+        return scenarioData;
       }),
   }),
 });

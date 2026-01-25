@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and, sql, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, userStats, InsertUserStats } from "../drizzle/schema";
+import { InsertUser, users, userStats, InsertUserStats, chatMessages, InsertChatMessage, topicPerformance, InsertTopicPerformance } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -114,6 +114,103 @@ export async function updateDisplayName(userId: number, displayName: string): Pr
   await db.update(users)
     .set({ displayName })
     .where(eq(users.id, userId));
+}
+
+export async function saveChatMessage(message: InsertChatMessage) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save chat message: database not available");
+    return;
+  }
+
+  await db.insert(chatMessages).values(message);
+}
+
+export async function getChatHistory(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get chat history: database not available");
+    return [];
+  }
+
+  const result = await db.select()
+    .from(chatMessages)
+    .where(eq(chatMessages.userId, userId))
+    .orderBy(desc(chatMessages.createdAt))
+    .limit(limit);
+
+  return result.reverse(); // Return in chronological order
+}
+
+export async function updateTopicPerformance(userId: number, topic: string, isCorrect: boolean) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update topic performance: database not available");
+    return;
+  }
+
+  // Check if record exists
+  const existing = await db.select()
+    .from(topicPerformance)
+    .where(and(
+      eq(topicPerformance.userId, userId),
+      eq(topicPerformance.topic, topic)
+    ))
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Update existing record
+    await db.update(topicPerformance)
+      .set({
+        totalAttempts: sql`${topicPerformance.totalAttempts} + 1`,
+        correctAnswers: isCorrect ? sql`${topicPerformance.correctAnswers} + 1` : sql`${topicPerformance.correctAnswers}`,
+        lastAttemptDate: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(and(
+        eq(topicPerformance.userId, userId),
+        eq(topicPerformance.topic, topic)
+      ));
+  } else {
+    // Insert new record
+    await db.insert(topicPerformance).values({
+      userId,
+      topic,
+      totalAttempts: 1,
+      correctAnswers: isCorrect ? 1 : 0,
+      lastAttemptDate: new Date(),
+    });
+  }
+}
+
+export async function getTopicPerformance(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get topic performance: database not available");
+    return [];
+  }
+
+  return await db.select()
+    .from(topicPerformance)
+    .where(eq(topicPerformance.userId, userId));
+}
+
+export async function getWeakTopics(userId: number, threshold: number = 0.6) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get weak topics: database not available");
+    return [];
+  }
+
+  const performance = await db.select()
+    .from(topicPerformance)
+    .where(eq(topicPerformance.userId, userId));
+
+  // Filter topics where accuracy is below threshold
+  return performance.filter(p => {
+    const accuracy = p.totalAttempts > 0 ? p.correctAnswers / p.totalAttempts : 0;
+    return accuracy < threshold && p.totalAttempts >= 3; // At least 3 attempts
+  });
 }
 
 export async function getUserStats(userId: number) {

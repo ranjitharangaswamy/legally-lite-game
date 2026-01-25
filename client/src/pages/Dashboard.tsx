@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Gamepad2, BookOpen, Filter } from "lucide-react";
+import { Gamepad2, BookOpen, Filter, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 // All available challenges/games - ORGANIZED BY DIFFICULTY (Easy -> Hard)
@@ -90,6 +90,28 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
+        {/* Quick Actions */}
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link href="/quiz?category=housing">
+            <Button className="w-full text-left justify-start border-2 border-foreground font-bold uppercase shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--color-foreground)] h-16">
+              <BookOpen className="mr-2 h-5 w-5" />
+              Take a Quiz
+            </Button>
+          </Link>
+          <Link href="/legal-assistant">
+            <Button variant="outline" className="w-full text-left justify-start border-2 border-foreground font-bold uppercase h-16">
+              <Sparkles className="mr-2 h-5 w-5" />
+              AI Legal Assistant
+            </Button>
+          </Link>
+          <Link href="/practice-scenarios">
+            <Button variant="outline" className="w-full text-left justify-start border-2 border-foreground font-bold uppercase h-16">
+              <Gamepad2 className="mr-2 h-5 w-5" />
+              Practice Scenarios
+            </Button>
+          </Link>
+        </div>
+
         {/* Header with User Stats */}
         <div className="mb-8 bg-card border-4 border-foreground p-6 shadow-[6px_6px_0px_0px_var(--color-foreground)]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
