@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft, Heart, Shield, Zap, CheckCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
+import { trpc } from "@/lib/trpc";
 
 // Inline game data to avoid JSON import issues
 const housingRightsData = {
@@ -56,6 +57,10 @@ export default function TenantShield() {
   const [allThreats, setAllThreats] = useState<Threat[]>([]);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [usedRights, setUsedRights] = useState<Set<string>>(new Set());
+  const [xpAwarded, setXpAwarded] = useState(false);
+  
+  const awardXpMutation = trpc.user.awardXp.useMutation();
+  const utils = trpc.useUtils();
 
   // Load state-specific data on mount
   useEffect(() => {
@@ -64,10 +69,26 @@ export default function TenantShield() {
     setAllThreats(stateData.threats);
   }, []);
 
+  // Award XP when game is won (only once)
+  useEffect(() => {
+    if (gameState === "won" && !xpAwarded && user) {
+      awardXpMutation.mutate(
+        { xpAmount: 300, challengeType: "game_tenant_shield" },
+        {
+          onSuccess: () => {
+            setXpAwarded(true);
+            utils.user.getStats.invalidate();
+          },
+        }
+      );
+    }
+  }, [gameState, xpAwarded, user, awardXpMutation, utils]);
+
   const startGame = () => {
     setGameState("playing");
     setLives(MAX_LIVES);
     setScore(0);
+    setXpAwarded(false);
     setCurrentThreatIndex(0);
     setSelectedRight(null);
     setFeedback(null);

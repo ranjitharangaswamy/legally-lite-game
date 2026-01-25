@@ -136,3 +136,65 @@ export async function initializeUserStats(userId: number): Promise<void> {
     set: { userId },
   });
 }
+
+export async function awardXp(userId: number, xpAmount: number, challengeType: string): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot award XP: database not available");
+    return;
+  }
+
+  // Get current stats
+  let stats = await getUserStats(userId);
+  
+  // Initialize if doesn't exist
+  if (!stats) {
+    await initializeUserStats(userId);
+    stats = await getUserStats(userId);
+  }
+
+  if (!stats) {
+    console.error("[Database] Failed to get or create user stats");
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const lastActivity = stats.lastActivityDate ? new Date(stats.lastActivityDate) : null;
+  let newStreak = stats.currentStreak || 0;
+  
+  // Update streak logic
+  if (lastActivity) {
+    lastActivity.setHours(0, 0, 0, 0);
+    const daysDiff = Math.floor((today.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff === 0) {
+      // Same day, keep streak
+      newStreak = stats.currentStreak || 0;
+    } else if (daysDiff === 1) {
+      // Next day, increment streak
+      newStreak = (stats.currentStreak || 0) + 1;
+    } else {
+      // Streak broken, reset to 1
+      newStreak = 1;
+    }
+  } else {
+    // First activity
+    newStreak = 1;
+  }
+
+  const newTotalXp = (stats.totalXp || 0) + xpAmount;
+  const newChallengesCompleted = (stats.challengesCompleted || 0) + 1;
+  const newLongestStreak = Math.max(newStreak, stats.longestStreak || 0);
+
+  await db.update(userStats)
+    .set({
+      totalXp: newTotalXp,
+      currentStreak: newStreak,
+      longestStreak: newLongestStreak,
+      challengesCompleted: newChallengesCompleted,
+      lastActivityDate: new Date(),
+    })
+    .where(eq(userStats.userId, userId));
+}

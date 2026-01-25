@@ -11,11 +11,13 @@ import { useState } from "react";
 // All available challenges/games - ORGANIZED BY DIFFICULTY (Easy -> Hard)
 const ALL_CHALLENGES = [
   // EASY challenges first
+  { id: 10, title: "Legal Concept Match", type: "Mini-Game", difficulty: "Easy", xp: 250, topic: "General Law", completed: false, path: "/games/concept-match", icon: <Gamepad2 className="h-6 w-6" /> },
   { id: 4, title: "Consumer Protection Quiz", type: "Quiz", difficulty: "Easy", xp: 200, topic: "Consumer Rights", completed: false, path: "/quiz?category=consumer", icon: <BookOpen className="h-6 w-6" /> },
   { id: 6, title: "Legal Terminology Quiz", type: "Quiz", difficulty: "Easy", xp: 200, topic: "General Law", completed: false, path: "/quiz?category=general", icon: <BookOpen className="h-6 w-6" /> },
   { id: 7, title: "Legal System Foundations Quiz", type: "Quiz", difficulty: "Easy", xp: 200, topic: "Fundamentals", completed: false, path: "/quiz?category=fundamentals", icon: <BookOpen className="h-6 w-6" /> },
   
   // MEDIUM challenges
+  { id: 11, title: "Court Process Sorter", type: "Mini-Game", difficulty: "Medium", xp: 300, topic: "Civil Procedure", completed: false, path: "/games/court-sorter", icon: <Gamepad2 className="h-6 w-6" /> },
   { id: 1, title: "Tenant Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, topic: "Housing Law", completed: false, path: "/quiz", icon: <BookOpen className="h-6 w-6" /> },
   { id: 8, title: "Tenant Shield", type: "Mini-Game", difficulty: "Medium", xp: 300, topic: "Housing Law", completed: false, path: "/games/tenant-shield", icon: <Gamepad2 className="h-6 w-6" /> },
   { id: 2, title: "Workplace Rights Quiz", type: "Quiz", difficulty: "Medium", xp: 250, topic: "Employment", completed: false, path: "/quiz?category=employment", icon: <BookOpen className="h-6 w-6" /> },

@@ -227,11 +227,25 @@
   --zoom-scale: 1;
 }
 
-body {
-  font-size: calc(1rem * var(--zoom-scale));
+/* Apply zoom to all text elements */
+html {
+  font-size: calc(16px * var(--zoom-scale));
 }
 
-/* Ensure zoom doesn't break fixed-size elements */
+/* Ensure all text elements inherit the zoom */
+body, p, span, div, a, li, td, th, label {
+  font-size: inherit;
+}
+
+/* Headings scale with zoom */
+h1 { font-size: calc(2.25rem * var(--zoom-scale)); }
+h2 { font-size: calc(1.875rem * var(--zoom-scale)); }
+h3 { font-size: calc(1.5rem * var(--zoom-scale)); }
+h4 { font-size: calc(1.25rem * var(--zoom-scale)); }
+h5 { font-size: calc(1.125rem * var(--zoom-scale)); }
+h6 { font-size: calc(1rem * var(--zoom-scale)); }
+
+/* Form elements scale with zoom */
 button, input, select, textarea {
-  font-size: calc(1em * var(--zoom-scale));
+  font-size: calc(1rem * var(--zoom-scale));
 }

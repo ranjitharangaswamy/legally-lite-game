@@ -28,3 +28,13 @@
 - [x] Fix quiz to show state-specific questions based on user's selected state
 - [x] Update quiz questions with verified California laws
 - [ ] Update Tenant Shield game with verified state-specific laws
+- [x] Replace "Sample User" placeholders with creative names on leaderboard
+- [x] Connect quiz completion to XP rewards system
+- [x] Connect mini-games to XP rewards system
+- [x] Fix zoom functionality to apply to all text (not just headings)
+- [x] Create Court Process Sorter game (sort legal procedure steps)
+- [x] Create Legal Concept Match card-matching game
+- [x] Add Court Process Sorter to dashboard as top game option
+- [x] Add Legal Concept Match to dashboard
+- [x] Fix Clause Cutter game - server restarted to clear build cache
+- [x] Test XP awards and leaderboard updates with real user data

@@ -6,6 +6,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 
 interface Question {
   id: number;
@@ -580,8 +581,11 @@ export default function Quiz() {
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
+  const [xpAwarded, setXpAwarded] = useState(false);
   
   const { user } = useAuth();
+  const awardXpMutation = trpc.user.awardXp.useMutation();
+  const utils = trpc.useUtils();
 
   // Get category from URL query parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -618,6 +622,22 @@ export default function Quiz() {
     }
   };
 
+  // Award XP when results are shown (only once)
+  useEffect(() => {
+    if (showResults && !xpAwarded && user) {
+      const xpAmount = score >= QUESTIONS.length * 0.7 ? 250 : score >= QUESTIONS.length * 0.5 ? 200 : 150;
+      awardXpMutation.mutate(
+        { xpAmount, challengeType: `quiz_${category}` },
+        {
+          onSuccess: () => {
+            setXpAwarded(true);
+            utils.user.getStats.invalidate();
+          },
+        }
+      );
+    }
+  }, [showResults, xpAwarded, user, score, QUESTIONS.length, category, awardXpMutation, utils]);
+
   if (showResults) {
     return (
       <Layout>
@@ -652,6 +672,7 @@ export default function Quiz() {
                   setShowResults(false);
                   setSelectedOption(null);
                   setIsAnswered(false);
+                  setXpAwarded(false);
                 }}
                 className="font-bold uppercase border-2 border-foreground"
               >

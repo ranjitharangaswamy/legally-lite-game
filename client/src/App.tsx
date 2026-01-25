@@ -15,6 +15,8 @@ import Onboarding from "./pages/Onboarding";
 import AuthWrapper from "./components/AuthWrapper";
 import TenantShield from "./pages/games/TenantShield";
 import ClauseCutter from "./pages/games/ClauseCutter";
+import CourtProcessSorter from "./pages/games/CourtProcessSorter";
+import LegalConceptMatch from "./pages/games/LegalConceptMatch";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -37,6 +39,16 @@ function Router() {
       <Route path={"/games/clause-cutter"}>
         <AuthWrapper requireAuth requireOnboarding>
           <ClauseCutter />
+        </AuthWrapper>
+      </Route>
+      <Route path={"/games/court-sorter"}>
+        <AuthWrapper requireAuth requireOnboarding>
+          <CourtProcessSorter />
+        </AuthWrapper>
+      </Route>
+      <Route path={"/games/concept-match"}>
+        <AuthWrapper requireAuth requireOnboarding>
+          <LegalConceptMatch />
         </AuthWrapper>
       </Route>
       <Route path={"/profile"}>

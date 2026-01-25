@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ArrowLeft, Heart, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
+import { trpc } from "@/lib/trpc";
 // Inline game data to avoid JSON import issues
 const clauseData = {
   illegal: [
@@ -54,6 +55,10 @@ export default function ClauseCutter() {
   const [clauses, setClauses] = useState<Clause[]>([]);
   const [timeLeft, setTimeLeft] = useState(60);
   const [feedback, setFeedback] = useState<{ text: string; color: string } | null>(null);
+  const [xpAwarded, setXpAwarded] = useState(false);
+  
+  const awardXpMutation = trpc.user.awardXp.useMutation();
+  const utils = trpc.useUtils();
 
   const startGame = () => {
     setGameState("playing");
@@ -61,6 +66,7 @@ export default function ClauseCutter() {
     setLives(3);
     setClauses([]);
     setTimeLeft(60);
+    setXpAwarded(false);
   };
 
   // Spawn clauses
@@ -155,6 +161,21 @@ export default function ClauseCutter() {
       setGameState("ended");
     }
   }, [lives, gameState]);
+
+  // Award XP when game ends (only once)
+  useEffect(() => {
+    if (gameState === "ended" && !xpAwarded && user) {
+      awardXpMutation.mutate(
+        { xpAmount: 300, challengeType: "game_clause_cutter" },
+        {
+          onSuccess: () => {
+            setXpAwarded(true);
+            utils.user.getStats.invalidate();
+          },
+        }
+      );
+    }
+  }, [gameState, xpAwarded, user, awardXpMutation, utils]);
 
   const showFeedback = (text: string, color: string) => {
     setFeedback({ text, color });

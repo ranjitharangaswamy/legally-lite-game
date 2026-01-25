@@ -6,9 +6,9 @@ import { Crown, Medal, Trophy } from "lucide-react";
 // Sample data to demonstrate leaderboard structure
 // In production, this would be fetched from the database
 const SAMPLE_LEADERBOARD = [
-  { rank: 1, name: "Sample User 1", xp: 1500, cases: 15, avatar: "bg-yellow-400" },
-  { rank: 2, name: "Sample User 2", xp: 1200, cases: 12, avatar: "bg-gray-300" },
-  { rank: 3, name: "Sample User 3", xp: 1000, cases: 10, avatar: "bg-orange-400" },
+  { rank: 1, name: "Justice Seeker", xp: 1500, cases: 15, avatar: "bg-yellow-400" },
+  { rank: 2, name: "Legal Eagle", xp: 1200, cases: 12, avatar: "bg-gray-300" },
+  { rank: 3, name: "Rights Defender", xp: 1000, cases: 10, avatar: "bg-orange-400" },
 ];
 
 export default function Leaderboard() {
