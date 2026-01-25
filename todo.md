@@ -20,3 +20,11 @@
 - [x] Update Tenant Shield to show threats one at a time
 - [x] Add green/red feedback for correct/incorrect shield placement in Tenant Shield
 - [x] Remove 'Washington Law Decoded' badge from home page
+- [x] Research state-specific tenancy laws from Avail.co and FindLaw
+- [x] Verify California laws with official Attorney General office
+- [ ] Verify New York, Texas, Washington laws with official sources
+- [x] Add filters to dashboard (difficulty, topic, XP)
+- [x] Organize games by difficulty (easy to hard, top to bottom)
+- [x] Fix quiz to show state-specific questions based on user's selected state
+- [x] Update quiz questions with verified California laws
+- [ ] Update Tenant Shield game with verified state-specific laws
