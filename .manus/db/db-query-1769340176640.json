@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, openId, name, email FROM users LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3BhMcF3RC5G2jV3.root --database PJ8TFMoJgtLUiudE9nZrKF --execute SELECT id, openId, name, email FROM users LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "KAnUUSqjyzDi6katHiuRhd",
+      "name": "Ranjitha Rangaswamy",
+      "email": "rnr6@uw.edu"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\n1\tKAnUUSqjyzDi6katHiuRhd\tRanjitha Rangaswamy\trnr6@uw.edu\n",
+  "stderr": "",
+  "execution_time_ms": 412
+}

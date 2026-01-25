@@ -48,3 +48,8 @@
 - [x] Add green/red visual feedback to Tenant Law Sorter for correct/incorrect sorting
 - [ ] Slow down Clause Cutter game pace for better readability
 - [x] Update README.md to reflect multi-state support (all 50 US states, not just Washington)
+- [x] Fix profile page to display logged-in user's name instead of owner's name
+- [x] Add customizable display name field to database schema
+- [x] Create backend mutation to update display name
+- [x] Add display name input to Profile settings
+- [x] Update all components to show display name

@@ -15,6 +15,13 @@
       "when": 1769110489879,
       "tag": "0001_wild_thunderbird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1769340372651,
+      "tag": "0002_yellow_texas_twister",
+      "breakpoints": true
     }
   ]
 }

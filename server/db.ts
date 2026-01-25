@@ -104,6 +104,18 @@ export async function updateUserState(userId: number, state: string): Promise<vo
     .where(eq(users.id, userId));
 }
 
+export async function updateDisplayName(userId: number, displayName: string): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update display name: database not available");
+    return;
+  }
+
+  await db.update(users)
+    .set({ displayName })
+    .where(eq(users.id, userId));
+}
+
 export async function getUserStats(userId: number) {
   const db = await getDb();
   if (!db) {

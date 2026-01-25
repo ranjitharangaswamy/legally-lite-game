@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useAccessibility } from "@/contexts/AccessibilityContext";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -6,7 +7,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Award, Calendar, Clock, Flame, Scale, Star, Trophy } from "lucide-react";
 
@@ -27,6 +28,7 @@ export default function Profile() {
   const { reduceMotion } = useAccessibility();
   const { user } = useAuth();
   const [selectedState, setSelectedState] = useState(user?.selectedState || "WA");
+  const [displayName, setDisplayName] = useState(user?.displayName || "");
   const utils = trpc.useUtils();
   
   const { data: userStats, isLoading: statsLoading } = trpc.user.getStats.useQuery();
@@ -50,10 +52,33 @@ export default function Profile() {
     },
   });
 
+  const updateDisplayNameMutation = trpc.user.updateDisplayName.useMutation({
+    onSuccess: () => {
+      toast.success("Display name updated successfully!");
+      utils.auth.me.invalidate();
+    },
+    onError: (error: any) => {
+      toast.error("Failed to update display name: " + error.message);
+    },
+  });
+
   const handleStateChange = (newState: string) => {
     setSelectedState(newState);
     updateStateMutation.mutate({ state: newState });
   };
+
+  const handleDisplayNameSave = () => {
+    if (displayName.trim()) {
+      updateDisplayNameMutation.mutate({ displayName: displayName.trim() });
+    }
+  };
+
+  // Update local state when user data changes
+  useEffect(() => {
+    if (user?.displayName) {
+      setDisplayName(user.displayName);
+    }
+  }, [user?.displayName]);
 
   return (
     <Layout>
@@ -68,7 +93,7 @@ export default function Profile() {
                 className="w-full h-full object-cover filter grayscale contrast-125"
               />
             </div>
-            <h1 className="text-2xl font-black uppercase mb-1">{user?.name || "Legal Eagle"}</h1>
+            <h1 className="text-2xl font-black uppercase mb-1">{user?.displayName || user?.name || "Legal Eagle"}</h1>
             <p className="text-muted-foreground font-bold mb-6">Level {level} Associate</p>
             
             <div className="space-y-4 text-left">
@@ -101,7 +126,33 @@ export default function Profile() {
           {/* State Selection */}
           <div className="bg-card border-4 border-foreground p-6 shadow-[6px_6px_0px_0px_var(--color-foreground)]">
             <h2 className="text-2xl font-bold mb-6 uppercase border-b-4 border-foreground pb-2">Settings</h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Display Name */}
+              <div>
+                <Label className="text-sm font-bold uppercase mb-2 block">Display Name</Label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Enter your display name"
+                    className="flex-1 px-3 py-2 border-2 border-foreground rounded-none bg-background text-foreground"
+                    maxLength={100}
+                  />
+                  <Button
+                    onClick={handleDisplayNameSave}
+                    disabled={updateDisplayNameMutation.isPending || !displayName.trim()}
+                    className="border-2 border-foreground rounded-none"
+                  >
+                    {updateDisplayNameMutation.isPending ? "Saving..." : "Save"}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This name will be displayed throughout the app instead of your account name.
+                </p>
+              </div>
+
+              {/* State Selection */}
               <div>
                 <Label className="text-sm font-bold uppercase mb-2 block">Your State</Label>
                 <Select value={selectedState} onValueChange={handleStateChange} disabled={updateStateMutation.isPending}>

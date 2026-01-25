@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { updateUserState, getUserStats, initializeUserStats, awardXp } from "./db";
+import { updateUserState, getUserStats, initializeUserStats, awardXp, updateDisplayName } from "./db";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -24,6 +24,13 @@ export const appRouter = router({
       .input(z.object({ state: z.string().length(2) }))
       .mutation(async ({ ctx, input }) => {
         await updateUserState(ctx.user.id, input.state);
+        return { success: true };
+      }),
+    
+    updateDisplayName: protectedProcedure
+      .input(z.object({ displayName: z.string().min(1).max(100) }))
+      .mutation(async ({ ctx, input }) => {
+        await updateDisplayName(ctx.user.id, input.displayName);
         return { success: true };
       }),
     
