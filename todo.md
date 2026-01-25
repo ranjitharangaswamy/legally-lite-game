@@ -47,3 +47,4 @@
 - [x] Update homepage text to replace "Washington" with "your state laws in the United States"
 - [x] Add green/red visual feedback to Tenant Law Sorter for correct/incorrect sorting
 - [ ] Slow down Clause Cutter game pace for better readability
+- [x] Update README.md to reflect multi-state support (all 50 US states, not just Washington)
