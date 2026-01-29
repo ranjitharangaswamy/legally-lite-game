@@ -3,18 +3,29 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { Bookmark, BookOpen, Brain, FileText, Trash2 } from "lucide-react";
+import { Bookmark, BookOpen, Brain, ChevronLeft, ChevronRight, FileText, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 
+const ITEMS_PER_PAGE = 10;
+
 export default function ReferenceLibrary() {
   const { user } = useAuth();
   const [filter, setFilter] = useState<"all" | "ai_response" | "quiz_question" | "scenario">("all");
+  const [currentPage, setCurrentPage] = useState(1);
   
   const { data: savedItems, refetch } = trpc.user.getSavedItems.useQuery(
     filter === "all" ? undefined : { type: filter }
   );
+  
+  const paginatedItems = savedItems ? savedItems.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  ) : [];
+  
+  const totalPages = savedItems ? Math.ceil(savedItems.length / ITEMS_PER_PAGE) : 0;
+  
   const deleteItemMutation = trpc.user.deleteSavedItem.useMutation();
 
   const handleDelete = async (id: number) => {
@@ -85,14 +96,14 @@ export default function ReferenceLibrary() {
         <div className="mb-6 flex flex-wrap gap-2">
           <Button
             variant={filter === "all" ? "default" : "outline"}
-            onClick={() => setFilter("all")}
+            onClick={() => { setFilter("all"); setCurrentPage(1); }}
             className="font-bold border-2 border-foreground"
           >
             All Items ({savedItems?.length || 0})
           </Button>
           <Button
             variant={filter === "ai_response" ? "default" : "outline"}
-            onClick={() => setFilter("ai_response")}
+            onClick={() => { setFilter("ai_response"); setCurrentPage(1); }}
             className="font-bold border-2 border-foreground"
           >
             <Brain className="h-4 w-4 mr-2" />
@@ -100,7 +111,7 @@ export default function ReferenceLibrary() {
           </Button>
           <Button
             variant={filter === "quiz_question" ? "default" : "outline"}
-            onClick={() => setFilter("quiz_question")}
+            onClick={() => { setFilter("quiz_question"); setCurrentPage(1); }}
             className="font-bold border-2 border-foreground"
           >
             <FileText className="h-4 w-4 mr-2" />
@@ -108,7 +119,7 @@ export default function ReferenceLibrary() {
           </Button>
           <Button
             variant={filter === "scenario" ? "default" : "outline"}
-            onClick={() => setFilter("scenario")}
+            onClick={() => { setFilter("scenario"); setCurrentPage(1); }}
             className="font-bold border-2 border-foreground"
           >
             <BookOpen className="h-4 w-4 mr-2" />
@@ -127,7 +138,7 @@ export default function ReferenceLibrary() {
               </p>
             </Card>
           ) : (
-            savedItems.map((item) => (
+            paginatedItems.map((item) => (
               <Card key={item.id} className="p-6 border-4 border-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)]">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 mt-1">
@@ -188,6 +199,52 @@ export default function ReferenceLibrary() {
             ))
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex flex-col items-center gap-4">
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="border-2 border-foreground font-bold"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    onClick={() => setCurrentPage(page)}
+                    className="border-2 border-foreground font-bold min-w-10"
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+              
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="border-2 border-foreground font-bold"
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+            
+            {savedItems && savedItems.length > 0 && (
+              <p className="text-sm text-muted-foreground font-bold">
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, savedItems.length)} of {savedItems.length} items
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </Layout>
   );

@@ -1,6 +1,6 @@
-import { eq, and, sql, desc } from "drizzle-orm";
+import { eq, and, sql, desc, gt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, userStats, InsertUserStats, chatMessages, InsertChatMessage, topicPerformance, InsertTopicPerformance, savedItems, InsertSavedItem } from "../drizzle/schema";
+import { InsertUser, users, userStats, InsertUserStats, chatMessages, InsertChatMessage, topicPerformance, InsertTopicPerformance, savedItems, InsertSavedItem, apiUsageLimits, cachedQuizzes, cachedLegalInfo } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -370,4 +370,148 @@ export async function deleteSavedItem(id: number, userId: number) {
   return await db
     .delete(savedItems)
     .where(and(eq(savedItems.id, id), eq(savedItems.userId, userId)));
+}
+
+// API Usage Limits functions
+export async function checkApiLimit(userId: number, featureType: 'aiQuiz' | 'aiAssistant' | 'practiceScenario', dailyLimit: number) {
+  const db = await getDb();
+  if (!db) return true; // Allow if DB unavailable
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let limit = await db.select().from(apiUsageLimits).where(eq(apiUsageLimits.userId, userId)).limit(1);
+  
+  if (!limit.length) {
+    // Create new limit record
+    await db.insert(apiUsageLimits).values({
+      userId,
+      aiQuizzesToday: 0,
+      aiAssistantMessagesToday: 0,
+      practiceScenariesToday: 0,
+      lastResetDate: today,
+    });
+    return true;
+  }
+
+  const record = limit[0];
+  const lastReset = new Date(record.lastResetDate);
+  lastReset.setHours(0, 0, 0, 0);
+
+  // Reset if new day
+  if (lastReset.getTime() !== today.getTime()) {
+    await db.update(apiUsageLimits)
+      .set({
+        aiQuizzesToday: 0,
+        aiAssistantMessagesToday: 0,
+        practiceScenariesToday: 0,
+        lastResetDate: today,
+      })
+      .where(eq(apiUsageLimits.userId, userId));
+    return true;
+  }
+
+  const fieldMap: Record<string, string> = {
+    aiQuiz: 'aiQuizzesToday',
+    aiAssistant: 'aiAssistantMessagesToday',
+    practiceScenario: 'practiceScenariesToday',
+  };
+  const field = fieldMap[featureType];
+  const currentCount = (record as any)[field] || 0;
+  return currentCount < dailyLimit;
+}
+
+export async function incrementApiUsage(userId: number, featureType: 'aiQuiz' | 'aiAssistant' | 'practiceScenario') {
+  const db = await getDb();
+  if (!db) return;
+
+  const fieldMap: Record<string, string> = {
+    aiQuiz: 'aiQuizzesToday',
+    aiAssistant: 'aiAssistantMessagesToday',
+    practiceScenario: 'practiceScenariesToday',
+  };
+  const field = fieldMap[featureType];
+  
+  const current = await db.select().from(apiUsageLimits).where(eq(apiUsageLimits.userId, userId)).limit(1);
+  if (current.length) {
+    const currentCount = (current[0] as any)[field] || 0;
+    const updateData: any = {};
+    updateData[field] = currentCount + 1;
+    await db.update(apiUsageLimits).set(updateData).where(eq(apiUsageLimits.userId, userId));
+  }
+}
+
+// Cached quizzes functions
+export async function getCachedQuiz(userId: number, state: string, category: string, difficulty: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const now = new Date();
+  const cached = await db.select()
+    .from(cachedQuizzes)
+    .where(and(
+      eq(cachedQuizzes.userId, userId),
+      eq(cachedQuizzes.state, state),
+      eq(cachedQuizzes.category, category),
+      eq(cachedQuizzes.difficulty, difficulty),
+      gt(cachedQuizzes.expiresAt, now)
+    ))
+    .limit(1);
+
+  if (cached.length) {
+    return JSON.parse(cached[0].questions);
+  }
+  return null;
+}
+
+export async function cacheQuiz(data: any) {
+  const db = await getDb();
+  if (!db) return;
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  await db.insert(cachedQuizzes).values({
+    ...data,
+    questions: typeof data.questions === 'string' ? data.questions : JSON.stringify(data.questions),
+    expiresAt,
+  });
+}
+
+// Cached legal info functions
+export async function getCachedLegalInfo(state: string, topic: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const now = new Date();
+  const cached = await db.select()
+    .from(cachedLegalInfo)
+    .where(and(
+      eq(cachedLegalInfo.state, state),
+      eq(cachedLegalInfo.topic, topic),
+      gt(cachedLegalInfo.expiresAt, now)
+    ))
+    .limit(1);
+
+  if (cached.length) {
+    return {
+      content: cached[0].content,
+      sources: JSON.parse(cached[0].sources),
+    };
+  }
+  return null;
+}
+
+export async function cacheLegalInfo(data: any) {
+  const db = await getDb();
+  if (!db) return;
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30);
+
+  await db.insert(cachedLegalInfo).values({
+    ...data,
+    sources: typeof data.sources === 'string' ? data.sources : JSON.stringify(data.sources),
+    expiresAt,
+  });
 }

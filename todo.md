@@ -76,3 +76,7 @@
 - [x] Add save buttons to quiz questions
 - [x] Add save buttons to practice scenarios (scenarios already generate unique content each time, saving not as critical)
 - [x] Create Reference Library page to view all saved items
+- [x] Cache AI-generated quiz questions in database to reduce LLM API calls
+- [x] Add daily usage limits on AI features per user
+- [x] Pre-fetch and cache government legal information for common topics
+- [x] Add pagination to Reference Library to reduce database load

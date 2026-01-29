@@ -114,3 +114,50 @@ export const savedItems = mysqlTable("saved_items", {
 
 export type SavedItem = typeof savedItems.$inferSelect;
 export type InsertSavedItem = typeof savedItems.$inferInsert;
+/**
+ * Cached AI-generated quiz questions to reduce LLM API calls
+ */
+export const cachedQuizzes = mysqlTable("cached_quizzes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  state: varchar("state", { length: 2 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  difficulty: varchar("difficulty", { length: 20 }).notNull(),
+  questions: text("questions").notNull(), // JSON array of questions
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(), // Cache expires after 7 days
+});
+
+export type CachedQuiz = typeof cachedQuizzes.$inferSelect;
+export type InsertCachedQuiz = typeof cachedQuizzes.$inferInsert;
+
+/**
+ * Daily API usage limits per user
+ */
+export const apiUsageLimits = mysqlTable("api_usage_limits", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  aiQuizzesToday: int("aiQuizzesToday").default(0).notNull(),
+  aiAssistantMessagesToday: int("aiAssistantMessagesToday").default(0).notNull(),
+  practiceScenariesToday: int("practiceScenariesToday").default(0).notNull(),
+  lastResetDate: timestamp("lastResetDate").notNull(),
+});
+
+export type ApiUsageLimit = typeof apiUsageLimits.$inferSelect;
+export type InsertApiUsageLimit = typeof apiUsageLimits.$inferInsert;
+
+/**
+ * Cached government legal information to reduce web search API calls
+ */
+export const cachedLegalInfo = mysqlTable("cached_legal_info", {
+  id: int("id").autoincrement().primaryKey(),
+  state: varchar("state", { length: 2 }).notNull(),
+  topic: varchar("topic", { length: 100 }).notNull(),
+  content: text("content").notNull(),
+  sources: text("sources").notNull(), // JSON array of source URLs
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(), // Cache expires after 30 days
+});
+
+export type CachedLegalInfo = typeof cachedLegalInfo.$inferSelect;
+export type InsertCachedLegalInfo = typeof cachedLegalInfo.$inferInsert;
