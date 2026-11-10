@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f4f0df" />
+  <meta name="description" content="Legally Lite — learn everyday legal rights through scenarios, quizzes, and mini-games." />
+  <title>Legally Lite — Know Your Rights</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#app">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="Legally Lite home"><span class="brand-mark">L</span><span>LEGALLY LITE</span></a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="main-nav">MENU</button>
+    <nav id="main-nav" aria-label="Primary navigation">
+      <a href="#dashboard">Dashboard</a><a href="#profile">Profile</a><a href="#leaderboard">Leaderboard</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-button" id="theme-toggle" aria-label="Toggle dark mode">◐</button>
+      <button class="icon-button" id="access-toggle" aria-label="Open accessibility options" aria-expanded="false">◉</button>
+    </div>
+    <section class="access-panel" id="access-panel" hidden aria-label="Accessibility options">
+      <h2>Accessibility options</h2>
+      <label><input type="checkbox" id="contrast-toggle" /> High contrast</label>
+      <label><input type="checkbox" id="text-toggle" /> Large text</label>
+      <label><input type="checkbox" id="motion-toggle" /> Reduce motion</label>
+      <div class="zoom-row"><span>Text zoom</span><button data-zoom="down">−</button><strong id="zoom-value">100%</strong><button data-zoom="up">+</button></div>
+      <button class="text-button" id="access-reset">Reset to 100%</button>
+    </section>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <footer><span>LEGALLY LITE © 2026</span><span>Empowering people with practical legal knowledge.</span></footer>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
